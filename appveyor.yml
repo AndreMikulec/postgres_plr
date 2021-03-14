@@ -91,7 +91,6 @@ environment:
   ZIPTMP: $(APPVEYOR_BUILD_FOLDER)\ZIPTMP
 
   matrix:
-
     - MSYSTEM: MINGW64
       MINGW_INSTALLS_TODO: mingw64
       BUILD_CONFIG: Release
@@ -260,6 +259,11 @@ install:
   # Curl (curl.exe) has already been added to PATH on build workers.
   # https://www.appveyor.com/docs/how-to/download-file/
   #
+  
+  # try to get from sourceforge
+  # only -f (-fail) flag will generate an error code
+  - if not exist PG_%PG_GIT_BRANCH%.%MSYSTEM%.%BUILD_CONFIG%.configure.build.tar.gz curl -o PG_%PG_GIT_BRANCH%.%MSYSTEM%.%BUILD_CONFIG%.configure.build.tar.gz -L -G -v https://downloads.sourceforge.net/project/andremikulec/PG_%PG_GIT_BRANCH%.%MSYSTEM%.%BUILD_CONFIG%.configure.build.tar.gz
+  
   # - appveyor DownloadFile https://cran.r-project.org/bin/windows/base/old/%R_OLD_VERSION%/R-%R_OLD_VERSION%-win.exe
   # - appveyor DownloadFile https://cran.r-project.org/bin/windows/base/old/%R_CUR_VERSION%/R-%R_CUR_VERSION%-win.exe
   #
@@ -348,9 +352,13 @@ cache:
   #
   # note: cancel a job: SEEMS! to clear the cache, so A BETTER SITUATION (so I do not have to re-build PostgreSQL) 
   #   is to RUN ALL JOBS and let them fail
+  # note: rename a github repository: DOES clear the cache
   # #
   # note: appveyor YAML error, seems to clear the cache!?!
   # #
+  # note: update the remove with a new revision during the build: clears the cache
+  #       and causes many job failures
+  #
   # note: I may have SET (see the MATRIX above) (so still saves even on error)
   # environment:
   #   APPVEYOR_SAVE_CACHE_ON_ERROR: true
@@ -385,9 +393,7 @@ cache:
   #
   # note, in that branch(or tag), this is not the "latest", but this is "good enough"
   #   2 MB not compressed + 200 MB not compressed (and 48 MB at sourceforge: compressed?)
-  - 'PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz'
-
-
+  - 'PG_%PG_GIT_BRANCH%.%MSYSTEM%.%BUILD_CONFIG%.configure.build.tar.gz'
 
 deploy:
   - provider: GitHub
