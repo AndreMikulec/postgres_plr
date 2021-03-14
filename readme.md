@@ -1,5 +1,9 @@
 
-[![Build status](https://ci.appveyor.com/api/projects/status/qsvmgjly4yq60pmy/branch/master?svg=true)](https://ci.appveyor.com/project/AndreMikulec/postgresql-ext-plr-build/branch/master)
+Postgres_PLR Project Build Status:
+[![Build status](https://ci.appveyor.com/api/projects/status/d6xr4t0p3b8avoiq?svg=true)](https://ci.appveyor.com/project/AndreMikulec/postgres-plr)
+
+Postgres_PLR Project Master Branch Build Status:
+[![Build status](https://ci.appveyor.com/api/projects/status/d6xr4t0p3b8avoiq/branch/master?svg=true)](https://ci.appveyor.com/project/AndreMikulec/postgres-plr/branch/master)
 
 ### PL/R - PostgreSQL support for R as a procedural language (PL)
 [![GitHub license](https://img.shields.io/github/license/postgres-plr/plr.svg?cacheSeconds=2592000)](https://github.com/postgres-plr/plr/blob/master/LICENSE)
