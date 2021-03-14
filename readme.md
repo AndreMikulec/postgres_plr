@@ -28,13 +28,13 @@ This extension allows a PostgreSQL SQL developer to write code using the "R" pro
 
 Get the "Appveyor built" downloads here.
 
-https://github.com/AndreMikulec/postgresql_ext_plr_build/releases
+https://github.com/AndreMikulec/postgres_plr/releases
 
 My `modified instructions` are here. 
 These instructions are "based on", and also are, an "enhancement of" the 
 copyright holders instructions (see the link below).
 
-https://github.com/AndreMikulec/postgresql_ext_plr_build/blob/master/userguide.md
+https://github.com/AndreMikulec/postgres_plr/blob/master/userguide.md
 
 The copyright holders instructions here (link).
 
