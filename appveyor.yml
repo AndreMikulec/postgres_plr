@@ -432,15 +432,6 @@ cache:
   - 'PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz'
 
 deploy:
-  - provider: GitHub
-    release: "BUILD_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%"
-    auth_token:
-      secure: KzS1DumC2yBg2LGN9x3AemHFOjAdp+rD58rW5aGGpwW4Pfdwdm7AmRpYKprPY8Gs
-    artifact: "BUILD_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%_%BUILD_CONFIG%"
-    draft: false
-    prerelease: false
-#   on:
-#     branch: master
 
   # In Appveyor, if "cached item(s)" is(are) created 
   # in a "previous job" and within this "set of builds"
@@ -468,10 +459,21 @@ deploy:
     username: andremikulec,andremikulec.u
     password:
       secure: 4gk4GyW4O5RooiOyGeRdoA==
-    artifact: "BUILD_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%_%BUILD_CONFIG%"
+    artifact: "PostgreSQL_%PG_GIT_BRANCH%_%MSYSTEM%_tar_gz"
     folder: /home/frs/project/andremikulec
     application:
     active_mode: false
+    on:
+      # I only have a PostgreSQL Release
+      BUILD_CONFIG: Release
+
+  - provider: GitHub
+    release: "BUILD_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%"
+    auth_token:
+      secure: KzS1DumC2yBg2LGN9x3AemHFOjAdp+rD58rW5aGGpwW4Pfdwdm7AmRpYKprPY8Gs
+    artifact: "BUILD_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%_%BUILD_CONFIG%"
+    draft: false
+    prerelease: false
 #   on:
 #     branch: master
 
@@ -481,13 +483,12 @@ deploy:
     username: andremikulec,andremikulec.u
     password:
       secure: 4gk4GyW4O5RooiOyGeRdoA==
-    artifact: "PostgreSQL_%PG_GIT_BRANCH%_%MSYSTEM%_tar_gz"
+    artifact: "BUILD_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%_%BUILD_CONFIG%"
     folder: /home/frs/project/andremikulec
     application:
     active_mode: false
-    on:
-      # I only have a PostgreSQL Release
-      BUILD_CONFIG: Release
+#   on:
+#     branch: master
 
   #
   # On May 1, 2021, the sunset will impact all existing Bintray users. 
