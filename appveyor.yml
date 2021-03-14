@@ -267,10 +267,10 @@ install:
   # try to get from sourceforge
   #
   # TOO SLOW only 42MB BUT NEVER ARRIVES
-  # - if not exist PG_%PG_GIT_BRANCH%.%MSYSTEM%.%BUILD_CONFIG%.configure.build.tar.gz curl -o PG_%PG_GIT_BRANCH%.%MSYSTEM%.%BUILD_CONFIG%.configure.build.tar.gz -L -G -v "https://downloads.sourceforge.net/project/andremikulec/PG_%PG_GIT_BRANCH%.%MSYSTEM%.%BUILD_CONFIG%.configure.build.tar.gz"
+  # - if not exist PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz curl -o PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz -L -G -v -f "https://downloads.sourceforge.net/project/andremikulec/PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz"
   #
   # try to get from bintray (note: unlike the web page; no-colon(:) here . . .)
-  - if not exist PG_%PG_GIT_BRANCH%.%MSYSTEM%.%BUILD_CONFIG%.configure.build.tar.gz curl -o PG_%PG_GIT_BRANCH%.%MSYSTEM%.%BUILD_CONFIG%.configure.build.tar.gz -L    -v "https://dl.bintray.com/andremikulecorg/andremikulecrepo/PG_%PG_GIT_BRANCH%.%MSYSTEM%.%BUILD_CONFIG%.configure.build.tar.gz" 
+  - if not exist PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz curl -o PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz -L    -v -f "https://dl.bintray.com/andremikulecorg/andremikulecrepo/andremikulecpkg/andremikulecvrsn/PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz" 
   
   # - appveyor DownloadFile https://cran.r-project.org/bin/windows/base/old/%R_OLD_VERSION%/R-%R_OLD_VERSION%-win.exe
   # - appveyor DownloadFile https://cran.r-project.org/bin/windows/base/old/%R_CUR_VERSION%/R-%R_CUR_VERSION%-win.exe
@@ -335,7 +335,7 @@ artifacts:
   - path: 'BUILD_%APPVEYOR_BUILD_VERSION%_PLR_*.tar.gz'
     name: "BUILD_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%_%BUILD_CONFIG%"
 
-  - path: 'PG_%PG_GIT_BRANCH%.%MSYSTEM%.%BUILD_CONFIG%.configure.build.tar.gz'
+  - path: 'PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz'
     name: "PostgreSQL_%PG_GIT_BRANCH%_%MSYSTEM%_tar_gz"
 
 # note, this does not, and can not, distiguish between a file and a folder
@@ -382,10 +382,10 @@ cache:
   # curl -X "DELETE" -H "Authorization: Bearer $APPVEYOR_TOKEN" https://ci.appveyor.com/api/projects/AndreMikulec/postgresql_ext_plr_build/buildcache
   #
   #  85 MB not compressed (3.6.3)
-  - 'R-%R_OLD_VERSION%-win.exe'
+  #### - 'R-%R_OLD_VERSION%-win.exe'
 
   #  85 MB not compressed (4.0.3)
-  - 'R-%R_CUR_VERSION%-win.exe'
+  ### - 'R-%R_CUR_VERSION%-win.exe'
 
   # 153 MB not compressed
   #   DOES NOT HAVE A SEPARATE 32 and 64 implementation
@@ -395,12 +395,12 @@ cache:
   #   #
   #   Strawberry Perl 5.30.2.1 (2020-03-17)
   #   https://strawberryperl.com/releases.html
-  - '%BETTERPERL%.zip'
+  #### - '%BETTERPERL%.zip'
 
   #
   # note, in that branch(or tag), this is not the "latest", but this is "good enough"
   #   2 MB not compressed + 200 MB not compressed (and 48 MB at sourceforge: compressed?)
-  - 'PG_%PG_GIT_BRANCH%.%MSYSTEM%.%BUILD_CONFIG%.configure.build.tar.gz'
+  #### - 'PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz'
 
 deploy:
   - provider: GitHub
