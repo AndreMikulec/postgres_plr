@@ -270,14 +270,37 @@ install:
   #
   # try to get from sourceforge
   #
-  # TOO SLOW only 42MB BUT NEVER ARRIVES
-  # - if not exist PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz curl -o PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz -L -G -v -f "https://downloads.sourceforge.net/project/andremikulec/PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz" || time /t
+  # TOO SLOW only 42MB: BUT NEVER ARRIVES
+  # - if not exist PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz curl -o PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz -L -G -f "https://downloads.sourceforge.net/project/andremikulec/PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz" || time /t
+
+  # try to get from bintray
   #
-  # try to get from bintray (note: unlike the web page; no-colon(:) here . . .)
-  - if not exist PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz curl -o PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz -L    -v -f "https://dl.bintray.com/andremikulecorg/andremikulecrepo/andremikulecpkg/andremikulecvrsn/PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz" || time /t
+  # Free (MAR 2021)
+  # 2GB Storage
+  # 10GB Transfer/month (So, the free plan would quickly run out of Transfer)
+  # 2,000 CI/CD Minutes/month
+  # https://jfrog.com/pricing/
+  #
+  # web page location (notice the colon(:))
+  # https://dl.bintray.com/andremikulecorg/andremikulecrepo/:MYFILE
+  #
+  # Appveyor upload location (from the Appveyor log)
+  # andremikulecorg/andremikulecrepo/andremikulecpkg/andremikulecvrsn/MYFILE
+  #
+  # curl download location (same as documented: no colon(:))
+  # https://dl.bintray.com/andremikulecorg/andremikulecrepo/MYFILE
+  # Andre experienced a VERY GOOD download speed: 3.5 MBytes/second
+  #
+  # - if not exist PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz curl -o PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz -L    -f "https://dl.bintray.com/andremikulecorg/andremikulecrepo/PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz" || time /t
   
-  # - appveyor DownloadFile https://cran.r-project.org/bin/windows/base/old/%R_OLD_VERSION%/R-%R_OLD_VERSION%-win.exe
-  # - appveyor DownloadFile https://cran.r-project.org/bin/windows/base/old/%R_CUR_VERSION%/R-%R_CUR_VERSION%-win.exe
+
+  # Andre experienced a VERY GOOD download speed: 3.7 MBytes/second
+  #
+  # Appveyor cache item
+  #
+  - if not exist PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz curl -o PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz -L    -f "https://github.com/AndreMikulec/postgres_plr/releases/download/zzzGithubFakeCache/PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz" || time /t
+
+  # Appveyor cache items
   #
   - if not exist R-%R_OLD_VERSION%-win.exe curl https://cran.r-project.org/bin/windows/base/old/%R_OLD_VERSION%/R-%R_OLD_VERSION%-win.exe -o R-%R_OLD_VERSION%-win.exe
   - if not exist R-%R_CUR_VERSION%-win.exe curl https://cran.r-project.org/bin/windows/base/old/%R_CUR_VERSION%/R-%R_CUR_VERSION%-win.exe -o R-%R_CUR_VERSION%-win.exe
@@ -306,6 +329,8 @@ install:
   # because the MSYS2 Perl implemention of regular expressions is poor.
   #
   # - appveyor DownloadFile %BETTERPERLURL% -FileName %BETTERPERL%.zip
+  #
+  # Appveyor cache item
   #
   - if not exist %BETTERPERL%.zip curl %BETTERPERLURL% -o %BETTERPERL%.zip
   #
@@ -417,15 +442,24 @@ deploy:
 #   on:
 #     branch: master
 
+  # In Appveyor, if "cached item(s)" is(are) created 
+  # in a "previous job" and within this "set of builds"
+  #
+  # Because Appveyor does not make the "new cached item(s)"
+  # available until the NEXT "project build first job"
+  #
+  #   Note, release managment (if desired) may be (more) elegant 
+  #   with the "Github CLI" command line utility (https://github.com/cli/cli#installation)
+  #
   - provider: GitHub
-    release: "BUILD_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%"
+    release: zzzGithubFakeCache
     auth_token:
       secure: KzS1DumC2yBg2LGN9x3AemHFOjAdp+rD58rW5aGGpwW4Pfdwdm7AmRpYKprPY8Gs
     artifact: "PostgreSQL_%PG_GIT_BRANCH%_%MSYSTEM%_tar_gz"
     draft: false
     prerelease: false
     on:
-# I only have a PostgreSQL Release
+      # I only have a PostgreSQL Release
       BUILD_CONFIG: Release
 
   - provider: FTP
@@ -452,23 +486,34 @@ deploy:
     application:
     active_mode: false
     on:
-# I only have a PostgreSQL Release
+      # I only have a PostgreSQL Release
       BUILD_CONFIG: Release
 
-  - provider: BinTray
-    username: andremikulec
-    subject: andremikulecorg
-    repo: andremikulecrepo
-    package: andremikulecpkg
-    version: andremikulecvrsn
-    publish: true
-    override: true
-    artifact: "PostgreSQL_%PG_GIT_BRANCH%_%MSYSTEM%_tar_gz"
-    api_key:
-      secure: ySVcVIzcDCvA54BLEfkVX1s04T86IQ93eAS69Fzn6oNNv48K5Nx74rlsAobIXX2a 
-    on:
-# I only have a PostgreSQL Release
-      BUILD_CONFIG: Release
+  #
+  # On May 1, 2021, the sunset will impact all existing Bintray users. 
+  # Bintray users will be blocked and will no longer be able to use the Bintray service. 
+  # This includes existing software distribution, account administrative access, UI access, and the REST API.
+  # 
+  # Into the Sunset on May 1st: Bintray, JCenter, GoCenter, and ChartCenter
+  # February 3, 2021
+  # https://jfrog.com/blog/into-the-sunset-bintray-jcenter-gocenter-and-chartcenter/
+  #
+  #  - provider: BinTray
+  #    username: andremikulec
+  #    subject: andremikulecorg
+  #    repo: andremikulecrepo
+  #    package: andremikulecpkg
+  #    version: andremikulecvrsn
+  #    publish: true
+  #    override: true
+  #    artifact: "PostgreSQL_%PG_GIT_BRANCH%_%MSYSTEM%_tar_gz"
+  #    api_key:
+  #      secure: ySVcVIzcDCvA54BLEfkVX1s04T86IQ93eAS69Fzn6oNNv48K5Nx74rlsAobIXX2a 
+  #    on:
+  #    # I only have a PostgreSQL Release
+  #      BUILD_CONFIG: Release
+
+
 
 on_finish:
 #   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
