@@ -260,9 +260,17 @@ install:
   # https://www.appveyor.com/docs/how-to/download-file/
   #
   
-  # try to get from sourceforge
+
+  #
   # only -f (-fail) flag will generate an error code
-  - if not exist PG_%PG_GIT_BRANCH%.%MSYSTEM%.%BUILD_CONFIG%.configure.build.tar.gz curl -o PG_%PG_GIT_BRANCH%.%MSYSTEM%.%BUILD_CONFIG%.configure.build.tar.gz -L -G -v https://downloads.sourceforge.net/project/andremikulec/PG_%PG_GIT_BRANCH%.%MSYSTEM%.%BUILD_CONFIG%.configure.build.tar.gz
+  #
+  # try to get from sourceforge
+  #
+  # TOO SLOW only 42MB BUT NEVER ARRIVES
+  # - if not exist PG_%PG_GIT_BRANCH%.%MSYSTEM%.%BUILD_CONFIG%.configure.build.tar.gz curl -o PG_%PG_GIT_BRANCH%.%MSYSTEM%.%BUILD_CONFIG%.configure.build.tar.gz -L -G -v "https://downloads.sourceforge.net/project/andremikulec/PG_%PG_GIT_BRANCH%.%MSYSTEM%.%BUILD_CONFIG%.configure.build.tar.gz"
+  #
+  # try to get from bintray (note: unlike the web page; no-colon(:) here . . .)
+  - if not exist PG_%PG_GIT_BRANCH%.%MSYSTEM%.%BUILD_CONFIG%.configure.build.tar.gz curl -o PG_%PG_GIT_BRANCH%.%MSYSTEM%.%BUILD_CONFIG%.configure.build.tar.gz -L    -v "https://dl.bintray.com/andremikulecorg/andremikulecrepo/PG_%PG_GIT_BRANCH%.%MSYSTEM%.%BUILD_CONFIG%.configure.build.tar.gz" 
   
   # - appveyor DownloadFile https://cran.r-project.org/bin/windows/base/old/%R_OLD_VERSION%/R-%R_OLD_VERSION%-win.exe
   # - appveyor DownloadFile https://cran.r-project.org/bin/windows/base/old/%R_CUR_VERSION%/R-%R_CUR_VERSION%-win.exe
@@ -327,9 +335,8 @@ artifacts:
   - path: 'BUILD_%APPVEYOR_BUILD_VERSION%_PLR_*.tar.gz'
     name: "BUILD_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%_%BUILD_CONFIG%"
 
-  - path: 'PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz'
+  - path: 'PG_%PG_GIT_BRANCH%.%MSYSTEM%.%BUILD_CONFIG%.configure.build.tar.gz'
     name: "PostgreSQL_%PG_GIT_BRANCH%_%MSYSTEM%_tar_gz"
-
 
 # note, this does not, and can not, distiguish between a file and a folder
 # Caching data between builds
@@ -400,7 +407,7 @@ deploy:
     release: "BUILD_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%"
     auth_token:
       secure: KzS1DumC2yBg2LGN9x3AemHFOjAdp+rD58rW5aGGpwW4Pfdwdm7AmRpYKprPY8Gs
-    artifact: BUILD_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%_%BUILD_CONFIG%
+    artifact: "BUILD_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%_%BUILD_CONFIG%"
     draft: false
     prerelease: false
 #   on:
@@ -410,7 +417,7 @@ deploy:
     release: "BUILD_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%"
     auth_token:
       secure: KzS1DumC2yBg2LGN9x3AemHFOjAdp+rD58rW5aGGpwW4Pfdwdm7AmRpYKprPY8Gs
-    artifact: PostgreSQL_%PG_GIT_BRANCH%_%MSYSTEM%_tar_gz
+    artifact: "PostgreSQL_%PG_GIT_BRANCH%_%MSYSTEM%_tar_gz"
     draft: false
     prerelease: false
     on:
@@ -423,7 +430,7 @@ deploy:
     username: andremikulec,andremikulec.u
     password:
       secure: 4gk4GyW4O5RooiOyGeRdoA==
-    artifact: BUILD_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%_%BUILD_CONFIG%, PostgreSQL_%PG_GIT_BRANCH%_%MSYSTEM%_tar_gz
+    artifact: "BUILD_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%_%BUILD_CONFIG%"
     folder: /home/frs/project/andremikulec
     application:
     active_mode: false
@@ -436,7 +443,7 @@ deploy:
     username: andremikulec,andremikulec.u
     password:
       secure: 4gk4GyW4O5RooiOyGeRdoA==
-    artifact: PostgreSQL_%PG_GIT_BRANCH%_%MSYSTEM%_tar_gz
+    artifact: "PostgreSQL_%PG_GIT_BRANCH%_%MSYSTEM%_tar_gz"
     folder: /home/frs/project/andremikulec
     application:
     active_mode: false
@@ -444,7 +451,20 @@ deploy:
 # I only have a PostgreSQL Release
       BUILD_CONFIG: Release
 
-
+  - provider: BinTray
+    username: andremikulec
+    subject: andremikulecorg
+    repo: andremikulecrepo
+    package: andremikulecpkg
+    version: andremikulecvrsn
+    publish: true
+    override: true
+    artifact: "PostgreSQL_%PG_GIT_BRANCH%_%MSYSTEM%_tar_gz"
+    api_key:
+      secure: ySVcVIzcDCvA54BLEfkVX1s04T86IQ93eAS69Fzn6oNNv48K5Nx74rlsAobIXX2a 
+    on:
+# I only have a PostgreSQL Release
+      BUILD_CONFIG: Release
 
 on_finish:
 #   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
