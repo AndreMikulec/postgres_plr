@@ -92,31 +92,17 @@ environment:
 
   matrix:
 
-    - MSYSTEM: MINGW32
-      MINGW_INSTALLS_TODO: mingw32
-      BUILD_CONFIG: Debug
-      BETTERPERLURL: $(BETTERPERL32URL)
-      BETTERPERL: $(BETTERPERL32)
-      PG_GIT_BRANCH: REL_13_STABLE
-      # PLR_TAG: REL8_4_1
-      # temporary until Dave Cramer pushes tag REL8_4_2
-      PLR_TAG: master
-      R_ARCH: /i386
-      COMPONENTS_ARCH: ',i386'
-      R_OLD_VERSION: 3.6.3
-      R_CUR_VERSION: 4.0.3
-
-    - MSYSTEM: MINGW32
-      MINGW_INSTALLS_TODO: mingw32
+    - MSYSTEM: MINGW64
+      MINGW_INSTALLS_TODO: mingw64
       BUILD_CONFIG: Release
-      BETTERPERLURL: $(BETTERPERL32URL)
-      BETTERPERL: $(BETTERPERL32)
+      BETTERPERLURL: $(BETTERPERL64URL)
+      BETTERPERL: $(BETTERPERL64)
       PG_GIT_BRANCH: REL_13_STABLE
       # PLR_TAG: REL8_4_1
       # temporary until Dave Cramer pushes tag REL8_4_2
       PLR_TAG: master
-      R_ARCH: /i386
-      COMPONENTS_ARCH: ',i386'
+      R_ARCH: /x64
+      COMPONENTS_ARCH: ',x64'
       R_OLD_VERSION: 3.6.3
       R_CUR_VERSION: 4.0.3
 
@@ -134,17 +120,31 @@ environment:
       R_OLD_VERSION: 3.6.3
       R_CUR_VERSION: 4.0.3
 
-    - MSYSTEM: MINGW64
-      MINGW_INSTALLS_TODO: mingw64
+    - MSYSTEM: MINGW32
+      MINGW_INSTALLS_TODO: mingw32
       BUILD_CONFIG: Release
-      BETTERPERLURL: $(BETTERPERL64URL)
-      BETTERPERL: $(BETTERPERL64)
+      BETTERPERLURL: $(BETTERPERL32URL)
+      BETTERPERL: $(BETTERPERL32)
       PG_GIT_BRANCH: REL_13_STABLE
       # PLR_TAG: REL8_4_1
       # temporary until Dave Cramer pushes tag REL8_4_2
       PLR_TAG: master
-      R_ARCH: /x64
-      COMPONENTS_ARCH: ',x64'
+      R_ARCH: /i386
+      COMPONENTS_ARCH: ',i386'
+      R_OLD_VERSION: 3.6.3
+      R_CUR_VERSION: 4.0.3
+
+    - MSYSTEM: MINGW32
+      MINGW_INSTALLS_TODO: mingw32
+      BUILD_CONFIG: Debug
+      BETTERPERLURL: $(BETTERPERL32URL)
+      BETTERPERL: $(BETTERPERL32)
+      PG_GIT_BRANCH: REL_13_STABLE
+      # PLR_TAG: REL8_4_1
+      # temporary until Dave Cramer pushes tag REL8_4_2
+      PLR_TAG: master
+      R_ARCH: /i386
+      COMPONENTS_ARCH: ',i386'
       R_OLD_VERSION: 3.6.3
       R_CUR_VERSION: 4.0.3
 
@@ -325,7 +325,6 @@ artifacts:
 
   - path: 'PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz'
     name: "PostgreSQL_%PG_GIT_BRANCH%_%MSYSTEM%_tar_gz"
-
 
 
 # note, this does not, and can not, distiguish between a file and a folder
