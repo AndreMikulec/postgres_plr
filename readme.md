@@ -26,9 +26,9 @@ The Appveyor YAML markup of this respository, is composed of instructions needed
 
 This extension allows a PostgreSQL SQL developer to write code using the "R" programming language inside the "PostgreSQL database on Windows."
 
-Get the "Appveyor built" downloads here.
+Get the latest "Appveyor built" plr released downloads here.
 
-https://github.com/AndreMikulec/postgres_plr/releases
+https://github.com/AndreMikulec/postgres_plr/releases/latest
 
 My `modified instructions` are here. 
 These instructions are "based on", and also are, an "enhancement of" the 
