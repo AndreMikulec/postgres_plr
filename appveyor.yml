@@ -61,8 +61,8 @@ skip_tags: true
 # Skipping commits affecting specific files (GitHub only).
 skip_commits:
   files:
-    - '**/*.md'  
-  message: /\[skip ci]/ 
+    - '**/*.md'
+  message: /\[skip ci]/
 
 # Build worker image (VM template)
 image: Visual Studio 2019
@@ -242,7 +242,7 @@ install:
   # Because Dave Cramer sometimes does not update the tag (so I can not rely on the tag)
   #
   - cd %PLRSOURCE%
-  - for /f "delims=" %%i in ('git rev-parse --short HEAD') do (set PLR_GIT_COMMIT=%%i) 
+  - for /f "delims=" %%i in ('git rev-parse --short HEAD') do (set PLR_GIT_COMMIT=%%i)
   - cd %APPVEYOR_BUILD_FOLDER%
   #
   - git clone --depth 1 --single-branch --branch=%PG_GIT_BRANCH% https://github.com/postgres/postgres.git %PGSOURCE%
@@ -250,7 +250,7 @@ install:
   # Note, if I am using PG_*.tar.gz from cache, then PG_GIT_COMMIT may not-be-useful and may not-be-used
   #
   - cd %PGSOURCE%
-  - for /f "delims=" %%i in ('git rev-parse --short HEAD') do (set  PG_GIT_COMMIT=%%i) 
+  - for /f "delims=" %%i in ('git rev-parse --short HEAD') do (set  PG_GIT_COMMIT=%%i)
   - cd %APPVEYOR_BUILD_FOLDER%
 
   # From
@@ -259,20 +259,33 @@ install:
   # Curl (curl.exe) has already been added to PATH on build workers.
   # https://www.appveyor.com/docs/how-to/download-file/
   #
-  
+
+
+  # Appveyor cache item
+  #
+  - set PG_CURL_REMOTE_FILE=PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz
 
   #
   # only -f (-fail) flag will generate an error code
   #
+  # curl man page
+  
   # how can I make my .bat file continue after an error
+  # || time /t
   # 2012
   # https://superuser.com/questions/527812/how-can-i-make-my-bat-file-continue-after-an-error
   #
+
+  #
   # try to get from sourceforge
   #
-  # TOO SLOW only 42MB: BUT NEVER ARRIVES
-  # - if not exist PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz curl -o PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz -L -G -f "https://downloads.sourceforge.net/project/andremikulec/PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz" || time /t
+  # - set PG_CURL_REMOTE_URL=https://sourceforge.net/projects/andremikulec/files/%PG_CURL_REMOTE_FILE%
+  #
+  # # TOO SLOW and the file size is only 42MB: BUT it NEVER ARRIVES
+  #
+  # - if not exist %PG_CURL_REMOTE_FILE% curl -o %PG_CURL_REMOTE_FILE% --fail -L -G %PG_CURL_REMOTE_URL% || time /t
 
+  #
   # try to get from bintray
   #
   # Free (MAR 2021)
@@ -289,16 +302,36 @@ install:
   #
   # curl download location (same as documented: no colon(:))
   # https://dl.bintray.com/andremikulecorg/andremikulecrepo/MYFILE
+  # 
   # Andre experienced a VERY GOOD download speed: 3.5 MBytes/second
   #
-  # - if not exist PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz curl -o PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz -L    -f "https://dl.bintray.com/andremikulecorg/andremikulecrepo/PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz" || time /t
-  
+  # - set PG_CURL_REMOTE_URL=https://dl.bintray.com/andremikulecorg/andremikulecrepo/%PG_CURL_REMOTE_FILE%
+  # - if not exist %PG_CURL_REMOTE_FILE% curl -o %PG_CURL_REMOTE_FILE% --fail -L %PG_CURL_REMOTE_URL% || time /t
 
+  #
+  # try to get from Github releases
+  #
+  # Using --fail will make the exit status nonzero on a failed request.
+  # Using --head will avoid downloading the file contents, since we don't need it for this check.
+  # Using --silent will avoid status or errors from being emitted by the check itself.
+  # https://stackoverflow.com/questions/12199059/how-to-check-if-an-url-exists-with-the-shell-and-probably-curl
+  #
+  # We can specifically test for failure with if errorlevel 1,
+  # which returns true if the errorlevel is 1 or greater.
+  # https://www.computerhope.com/jargon/e/erroleve.htm
+  #
+  # Conditionally perform a command.
+  # https://ss64.com/nt/if.html
+
+  - set PG_CURL_REMOTE_URL=https://github.com/AndreMikulec/postgres_plr/releases/download/zzzGithubFakeCache/%PG_CURL_REMOTE_FILE%
+  - |-
+    curl -o THROWAWAYFILE --silent --head --fail -L %PG_CURL_REMOTE_URL%
+    if errorlevel 1 (set PG_CURL_ERROR=true) else (set PG_CURL_ERROR=false)
+    for /f "delims=" %%i in ('echo %PG_CURL_ERROR%') do (set PG_CURL_ERROR=%%i)
+  #
   # Andre experienced a VERY GOOD download speed: 3.7 MBytes/second
   #
-  # Appveyor cache item
-  #
-  - if not exist PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz curl -o PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz -L    -f "https://github.com/AndreMikulec/postgres_plr/releases/download/zzzGithubFakeCache/PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz" || time /t
+  - if "%PG_CURL_ERROR%" == "false" if not exist %PG_CURL_REMOTE_FILE% curl -o %PG_CURL_REMOTE_FILE% --fail -L %PG_CURL_REMOTE_URL% || time /t
 
   # Appveyor cache items
   #
@@ -358,9 +391,9 @@ build_script:
 artifacts:
   #
   # see the log . . .
-  # if the artifact is deployed to Github (buts seems silently dropped(re-overridden by Github)), 
+  # if the artifact is deployed to Github (buts seems silently dropped(re-overridden by Github)),
   #   then some uniqueness may be needed ???
-  # 
+  #
   - path: 'BUILD_%APPVEYOR_BUILD_VERSION%_PLR_*.tar.gz'
     name: "BUILD_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%_%BUILD_CONFIG%"
 
@@ -381,12 +414,12 @@ artifacts:
 # https://stackoverflow.com/questions/23735282/if-not-exist-command-in-batch-file
 #
 cache:
-  # NOTE, cache (created now), and thus cache (to be restored ASAP), 
+  # NOTE, cache (created now), and thus cache (to be restored ASAP),
   #   is ONLY available on the NEXT build (set of runtime jobs), but the cache IS AVAILABLE per project.
   #
   # 1 GB limit per "free" account
   #
-  # note: cancel a job: SEEMS! to clear the cache, so A BETTER SITUATION (so I do not have to re-build PostgreSQL) 
+  # note: cancel a job: SEEMS! to clear the cache, so A BETTER SITUATION (so I do not have to re-build PostgreSQL)
   #   is to RUN ALL JOBS and let them fail
   # note: rename a github repository: DOES clear the cache
   # #
@@ -407,8 +440,9 @@ cache:
   # https://www.appveyor.com/docs/api/#authentication
   # https://ci.appveyor.com/api-keys
   #
+  # NOTE, this identifier is actually the "Project URL slug"
   # export APPVEYOR_TOKEN="Get from MY page: https://ci.appveyor.com/api-keys"
-  # curl -X "DELETE" -H "Authorization: Bearer $APPVEYOR_TOKEN" https://ci.appveyor.com/api/projects/AndreMikulec/postgresql_ext_plr_build/buildcache
+  # curl -X "DELETE" -H "Authorization: Bearer $APPVEYOR_TOKEN" https://ci.appveyor.com/api/projects/AndreMikulec/postgres-plr/buildcache
   #
   #  85 MB not compressed (3.6.3)
   - 'R-%R_OLD_VERSION%-win.exe'
@@ -433,14 +467,15 @@ cache:
 
 deploy:
 
-  # In Appveyor, if "cached item(s)" is(are) created 
+  # In Appveyor, if "cached item(s)" is(are) created
   # in a "previous job" and within this "set of builds"
   #
   # Because Appveyor does not make the "new cached item(s)"
   # available until the NEXT "project build first job"
   #
-  #   Note, release managment (if desired) may be (more) elegant 
-  #   with the "Github CLI" command line utility (https://github.com/cli/cli#installation)
+  #   Note, release managment (if desired) may be (more) elegant
+  #   choco install gh
+  #   with the "Github CLI" command line utility: gh (https://github.com/cli/cli#installation)
   #
   - provider: GitHub
     release: zzzGithubFakeCache
@@ -491,10 +526,10 @@ deploy:
 #     branch: master
 
   #
-  # On May 1, 2021, the sunset will impact all existing Bintray users. 
-  # Bintray users will be blocked and will no longer be able to use the Bintray service. 
+  # On May 1, 2021, the sunset will impact all existing Bintray users.
+  # Bintray users will be blocked and will no longer be able to use the Bintray service.
   # This includes existing software distribution, account administrative access, UI access, and the REST API.
-  # 
+  #
   # Into the Sunset on May 1st: Bintray, JCenter, GoCenter, and ChartCenter
   # February 3, 2021
   # https://jfrog.com/blog/into-the-sunset-bintray-jcenter-gocenter-and-chartcenter/
@@ -509,7 +544,7 @@ deploy:
   #    override: true
   #    artifact: "PostgreSQL_%PG_GIT_BRANCH%_%MSYSTEM%_tar_gz"
   #    api_key:
-  #      secure: ySVcVIzcDCvA54BLEfkVX1s04T86IQ93eAS69Fzn6oNNv48K5Nx74rlsAobIXX2a 
+  #      secure: ySVcVIzcDCvA54BLEfkVX1s04T86IQ93eAS69Fzn6oNNv48K5Nx74rlsAobIXX2a
   #    on:
   #    # I only have a PostgreSQL Release
   #      BUILD_CONFIG: Release
