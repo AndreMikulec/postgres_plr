@@ -45,7 +45,7 @@ loginfo "BEGIN makepkg-mingw"
 # Build package
 #
 set -o pipefail
-MINGW_INSTALLS="mingw64" makepkg-mingw --nocheck 2>&1 | tee PKGBUILD.log
+MINGW_INSTALLS="${MINGW_INSTALLS_TODO}" makepkg-mingw --nocheck 2>&1 | tee PKGBUILD.log
 #
 loginfo "END   makepkg-mingw"
 

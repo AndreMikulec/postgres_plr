@@ -73,7 +73,7 @@ export ZIPTMP=$(cygpath -u "${ZIPTMP}")
 
 
 
-# hopefully should not matter, but I feel more compfortable
+# hopefully should not matter, but I feel more compfortable - I had an error - so MATTERS
 export APPVEYOR_BUILD_FOLDER=$(cygpath -u "${APPVEYOR_BUILD_FOLDER}")
 
 
@@ -81,6 +81,8 @@ export APPVEYOR_BUILD_FOLDER=$(cygpath -u "${APPVEYOR_BUILD_FOLDER}")
 # everytime I enter MSYS2 (using any method), this is
 # pre-pended to the beginning of the path . . .
 # /mingw64/bin:/usr/local/bin:/usr/bin:/bin:
+# or
+# /mingw32/bin:/usr/local/bin:/usr/bin:/bin:
 
 # but I want Strawberry Perl to be in front, so I will manually do that HERE now
 export PATH=${APPVEYOR_BUILD_FOLDER}/${BETTERPERL}/perl/bin:$PATH
@@ -112,8 +114,10 @@ package() {
   pwd
   loginfo 'PKGBUILD package ${srcdir}'
   echo ${srcdir}
+  ls -alrt ${srcdir}
   loginfo 'PKGBUILD package ${pkgdir}'
   echo ${pkgdir}
+  ls -alrt ${pkgdir}
 
 
 
@@ -133,19 +137,19 @@ package() {
   # configure + build postgres
   #
   cd ${PGSOURCE}
-  if [ ! -f "${APPVEYOR_BUILD_FOLDER}/PG_${PG_GIT_BRANCH}.configure.build.tar.gz" ]
+  if [ ! -f "${APPVEYOR_BUILD_FOLDER}/PG_${PG_GIT_BRANCH}.${MSYSTEM}.configure.build.tar.gz" ]
   then
     ./configure --enable-depend --disable-rpath --prefix=${PGINSTALL}
     # + build
     make
     loginfo "BEGIN tar CREATION"
     ls -alrt ${APPVEYOR_BUILD_FOLDER}
-    tar -zcf ${APPVEYOR_BUILD_FOLDER}/PG_${PG_GIT_BRANCH}.configure.build.tar.gz *
-    ls -alrt ${APPVEYOR_BUILD_FOLDER}/PG_${PG_GIT_BRANCH}.configure.build.tar.gz
+    tar -zcf ${APPVEYOR_BUILD_FOLDER}/PG_${PG_GIT_BRANCH}.${MSYSTEM}.configure.build.tar.gz *
+    ls -alrt ${APPVEYOR_BUILD_FOLDER}/PG_${PG_GIT_BRANCH}.${MSYSTEM}.configure.build.tar.gz
     loginfo "END   tar CREATION"
   else
     loginfo "BEGIN tar EXTRACTION"
-    tar -zxf ${APPVEYOR_BUILD_FOLDER}/PG_${PG_GIT_BRANCH}.configure.build.tar.gz
+    tar -zxf ${APPVEYOR_BUILD_FOLDER}/PG_${PG_GIT_BRANCH}.${MSYSTEM}.configure.build.tar.gz
     ls -alrt ${PGSOURCE}
     loginfo "END   tar EXTRACTION"
   fi
@@ -187,6 +191,20 @@ package() {
   cat      ${PGSOURCE}/contrib/plr/Makefile
 
 
+  #
+  # Attempt to make a debuggable plr
+  #
+  cd ${PGSOURCE}/contrib/plr
+  if [ "${BUILD_CONFIG}" = "Debug" ]
+  then
+    echo ""                          >> Makefile
+    echo "override CFLAGS += -g -Og" >> Makefile
+    echo ""                          >> Makefile
+  fi
+  cd -
+  #
+  cat      ${PGSOURCE}/contrib/plr/Makefile
+
 
   loginfo "BEGIN PKGBUILD package OLD R PLR BUILD AND INSTALL"
   #
@@ -227,7 +245,7 @@ package() {
   mkdir -p                                                     ${ZIPTMP}/share
   cp -r -p ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.* ${ZIPTMP}/share
   #
-  export ZIP=PLR_${PLR_TAG}_${MSYSTEM}_PG_${PG_GIT_BRANCH}_R_${R_OLD_VERSION}.tar.gz
+  export ZIP=BUILD_${APPVEYOR_BUILD_VERSION}_PLR_${PLR_TAG}_${PLR_GIT_COMMIT}_${MSYSTEM}_PG_${PG_GIT_BRANCH}_R_${R_OLD_VERSION}_${BUILD_CONFIG}.tar.gz
   echo ${ZIP}
   cd ${ZIPTMP}
   loginfo "BEGIN tar CREATION"
@@ -286,7 +304,7 @@ package() {
   mkdir -p                                                     ${ZIPTMP}/share
   cp -r -p ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.* ${ZIPTMP}/share
   #
-  export ZIP=PLR_${PLR_TAG}_${MSYSTEM}_PG_${PG_GIT_BRANCH}_R_${R_CUR_VERSION}.tar.gz
+  export ZIP=BUILD_${APPVEYOR_BUILD_VERSION}_PLR_${PLR_TAG}_${PLR_GIT_COMMIT}_${MSYSTEM}_PG_${PG_GIT_BRANCH}_R_${R_CUR_VERSION}_${BUILD_CONFIG}.tar.gz
   echo ${ZIP}
   cd ${ZIPTMP}
   loginfo "BEGIN tar CREATION"
@@ -304,12 +322,21 @@ package() {
   pwd
   ls -alrt ${APPVEYOR_BUILD_FOLDER}/${ZIP}
 
-
-
   loginfo "END   PKGBUILD package"
 
 }
 
+
+loginfo "BEGIN near end of PKGBUILD"
+loginfo 'PKGBUILD package pwd'
+pwd
+loginfo 'PKGBUILD package ${srcdir}'
+echo ${srcdir}
+ls -alrt ${srcdir}
+loginfo 'PKGBUILD package ${pkgdir}'
+echo ${pkgdir}
+ls -alrt ${pkgdir}
+loginfo "END near end of PKGBUILD"
 
 
 loginfo "END   file PKGBUILD"

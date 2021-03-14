@@ -66,6 +66,10 @@ skip_commits:
 
 # Build worker image (VM template)
 image: Visual Studio 2019
+#
+# using default image (Visual Studio 2015)
+#
+# image: Visual Studio 2015 - failed:  (invalid or corrupted database (PGP signature))
 
 # set clone depth
 clone_depth: 1
@@ -85,8 +89,40 @@ environment:
   PGINSTALL: $(APPVEYOR_BUILD_FOLDER)\PGINSTALL
   R_HOME: $(APPVEYOR_BUILD_FOLDER)\RINSTALL
   ZIPTMP: $(APPVEYOR_BUILD_FOLDER)\ZIPTMP
+
   matrix:
+
+    - MSYSTEM: MINGW32
+      MINGW_INSTALLS_TODO: mingw32
+      BUILD_CONFIG: Debug
+      BETTERPERLURL: $(BETTERPERL32URL)
+      BETTERPERL: $(BETTERPERL32)
+      PG_GIT_BRANCH: REL_13_STABLE
+      # PLR_TAG: REL8_4_1
+      # temporary until Dave Cramer pushes tag REL8_4_2
+      PLR_TAG: master
+      R_ARCH: /i386
+      COMPONENTS_ARCH: ',i386'
+      R_OLD_VERSION: 3.6.3
+      R_CUR_VERSION: 4.0.3
+
+    - MSYSTEM: MINGW32
+      MINGW_INSTALLS_TODO: mingw32
+      BUILD_CONFIG: Release
+      BETTERPERLURL: $(BETTERPERL32URL)
+      BETTERPERL: $(BETTERPERL32)
+      PG_GIT_BRANCH: REL_13_STABLE
+      # PLR_TAG: REL8_4_1
+      # temporary until Dave Cramer pushes tag REL8_4_2
+      PLR_TAG: master
+      R_ARCH: /i386
+      COMPONENTS_ARCH: ',i386'
+      R_OLD_VERSION: 3.6.3
+      R_CUR_VERSION: 4.0.3
+
     - MSYSTEM: MINGW64
+      MINGW_INSTALLS_TODO: mingw64
+      BUILD_CONFIG: Debug
       BETTERPERLURL: $(BETTERPERL64URL)
       BETTERPERL: $(BETTERPERL64)
       PG_GIT_BRANCH: REL_13_STABLE
@@ -97,6 +133,22 @@ environment:
       COMPONENTS_ARCH: ',x64'
       R_OLD_VERSION: 3.6.3
       R_CUR_VERSION: 4.0.3
+
+    - MSYSTEM: MINGW64
+      MINGW_INSTALLS_TODO: mingw64
+      BUILD_CONFIG: Release
+      BETTERPERLURL: $(BETTERPERL64URL)
+      BETTERPERL: $(BETTERPERL64)
+      PG_GIT_BRANCH: REL_13_STABLE
+      # PLR_TAG: REL8_4_1
+      # temporary until Dave Cramer pushes tag REL8_4_2
+      PLR_TAG: master
+      R_ARCH: /x64
+      COMPONENTS_ARCH: ',x64'
+      R_OLD_VERSION: 3.6.3
+      R_CUR_VERSION: 4.0.3
+
+
 
 # Accessing Windows build worker via Remote Desktop
 # JAN 2021
@@ -127,9 +179,7 @@ init:
 
 install:
   - set HOME=.
-
   - echo BEGIN APPVEYOR INSTALL
-
   - echo on
   - set
   #
@@ -184,11 +234,25 @@ install:
   - echo END   MSYS2 UPGRADE
 
   # acquire source code
-  - git clone --depth 1 --single-branch --branch=%PG_GIT_BRANCH% https://github.com/postgres/postgres.git %PGSOURCE%
-  - git clone --depth 1 --single-branch --branch=%PLR_TAG%       https://github.com/postgres-plr/plr.git  %PLRSOURCE%
-  # . . . future . . .
+  #
   # works (1) in a branch or (2) at a detached head
   # git rev-parse --short HEAD
+  #
+  - git clone --depth 1 --single-branch --branch=%PLR_TAG%       https://github.com/postgres-plr/plr.git  %PLRSOURCE%
+  #
+  # Because Dave Cramer sometimes does not update the tag (so I can not rely on the tag)
+  #
+  - cd %PLRSOURCE%
+  - for /f "delims=" %%i in ('git rev-parse --short HEAD') do (set PLR_GIT_COMMIT=%%i) 
+  - cd %APPVEYOR_REPO_FOLDER%
+  #
+  - git clone --depth 1 --single-branch --branch=%PG_GIT_BRANCH% https://github.com/postgres/postgres.git %PGSOURCE%
+  #
+  # Note, if I am using PG_*.tar.gz from cache, then PG_GIT_COMMIT may not-be-useful and may not-be-used
+  #
+  - cd %PGSOURCE%
+  - for /f "delims=" %%i in ('git rev-parse --short HEAD') do (set  PG_GIT_COMMIT=%%i) 
+  - cd %APPVEYOR_REPO_FOLDER%
 
   # From
   # https://github.com/postgres-plr/plpostgres-plr/plr/appveyor.yml
@@ -221,7 +285,7 @@ install:
   - R-%R_CUR_VERSION%-win.exe /SP- /VERYSILENT /DIR=%R_HOME%CUR /COMPONENTS=main%COMPONENTS_ARCH%,translations /NOICONS /TASKS=
 
   - echo BEGIN BETTER PERL
-  # better Perl
+  # better Perl (PostgreSQL install instructions using Microsoft Visual Studio say to use: ActiveState Perl)
   # avoid the PostgreSQL compilation error "unable to parse lwlocknames.txt"
   # because the MSYS2 Perl implemention of regular expressions is poor.
   #
@@ -251,12 +315,16 @@ build_script:
 
 
 artifacts:
-  - path: 'PLR_*.tar.gz'
-    name: PLR_tar_gz
+  #
+  # see the log . . .
+  # if the artifact is deployed to Github (buts seems silently dropped(re-overridden by Github)), 
+  #   then some uniqueness may be needed ???
+  # 
+  - path: 'BUILD_%APPVEYOR_BUILD_VERSION%_PLR_*.tar.gz'
+    name: "BUILD_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%_%BUILD_CONFIG%"
 
-# # DOES WORK
-# - path: 'PG_$(PG_GIT_BRANCH).configure.build.tar.gz'
-#   name: PostgreSQL_tar_gz
+  - path: 'PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz'
+    name: "PostgreSQL_%PG_GIT_BRANCH%_%MSYSTEM%_tar_gz"
 
 
 
@@ -274,10 +342,17 @@ artifacts:
 # https://stackoverflow.com/questions/23735282/if-not-exist-command-in-batch-file
 #
 cache:
+  # NOTE, cache (created now), and thus cache (to be restored ASAP), 
+  #   is ONLY available on the NEXT build (set of runtime jobs), but the cache IS AVAILABLE per project.
   #
   # 1 GB limit per "free" account
   #
-  # note: I may have set (so still saves even on error)
+  # note: cancel a job: SEEMS! to clear the cache, so A BETTER SITUATION (so I do not have to re-build PostgreSQL) 
+  #   is to RUN ALL JOBS and let them fail
+  # #
+  # note: appveyor YAML error, seems to clear the cache!?!
+  # #
+  # note: I may have SET (see the MATRIX above) (so still saves even on error)
   # environment:
   #   APPVEYOR_SAVE_CACHE_ON_ERROR: true
   #
@@ -310,37 +385,59 @@ cache:
 
   #
   # note, in that branch(or tag), this is not the "latest", but this is "good enough"
-  #   2 MB not compressed + 200 MB not compressed
-  - 'PG_%PG_GIT_BRANCH%.configure.build.tar.gz'
+  #   2 MB not compressed + 200 MB not compressed (and 48 MB at sourceforge: compressed?)
+  - 'PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz'
 
 
 
 deploy:
   - provider: GitHub
-    release: "PLR_%PLR_TAG%_%MSYSTEM%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%_%APPVEYOR_BUILD_VERSION%"
+    release: "BUILD_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%"
     auth_token:
       secure: KzS1DumC2yBg2LGN9x3AemHFOjAdp+rD58rW5aGGpwW4Pfdwdm7AmRpYKprPY8Gs
-    artifact: PLR_tar_gz
+    artifact: BUILD_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%_%BUILD_CONFIG%
     draft: false
     prerelease: false
 #   on:
 #     branch: master
 
-# # DOES WORK
-# - provider: FTP
-#   host: frs.sourceforge.net
-#   protocol: sftp
-#   username: andremikulec,andremikulec.u
-#   password:
-#     secure: 4gk4GyW4O5RooiOyGeRdoA==
-#   artifact: PostgreSQL_tar_gz
-#   folder: /home/frs/project/andremikulec
-#   application:
-#   active_mode: false
+  - provider: GitHub
+    release: "BUILD_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%"
+    auth_token:
+      secure: KzS1DumC2yBg2LGN9x3AemHFOjAdp+rD58rW5aGGpwW4Pfdwdm7AmRpYKprPY8Gs
+    artifact: PostgreSQL_%PG_GIT_BRANCH%_%MSYSTEM%_tar_gz
+    draft: false
+    prerelease: false
+    on:
+# I only have a PostgreSQL Release
+      BUILD_CONFIG: Release
+
+  - provider: FTP
+    host: frs.sourceforge.net
+    protocol: sftp
+    username: andremikulec,andremikulec.u
+    password:
+      secure: 4gk4GyW4O5RooiOyGeRdoA==
+    artifact: BUILD_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%_%BUILD_CONFIG%, PostgreSQL_%PG_GIT_BRANCH%_%MSYSTEM%_tar_gz
+    folder: /home/frs/project/andremikulec
+    application:
+    active_mode: false
 #   on:
 #     branch: master
 
-
+  - provider: FTP
+    host: frs.sourceforge.net
+    protocol: sftp
+    username: andremikulec,andremikulec.u
+    password:
+      secure: 4gk4GyW4O5RooiOyGeRdoA==
+    artifact: PostgreSQL_%PG_GIT_BRANCH%_%MSYSTEM%_tar_gz
+    folder: /home/frs/project/andremikulec
+    application:
+    active_mode: false
+    on:
+# I only have a PostgreSQL Release
+      BUILD_CONFIG: Release
 
 on_finish:
 #   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
