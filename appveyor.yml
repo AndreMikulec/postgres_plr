@@ -487,6 +487,8 @@ deploy:
     on:
       # I only have a PostgreSQL Release
       BUILD_CONFIG: Release
+      # if PG is not in Github release zzzGithubFakeCache, then put PG into Github release zzzGithubFakeCache
+      PG_CURL_ERROR: true
 
   - provider: FTP
     host: frs.sourceforge.net
