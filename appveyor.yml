@@ -438,6 +438,8 @@ deploy:
 # I only have a PostgreSQL Release
       BUILD_CONFIG: Release
 
+
+
 on_finish:
 #   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 # # remove locking file from the desktop
