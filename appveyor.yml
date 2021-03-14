@@ -475,7 +475,7 @@ deploy:
   #
   #   Note, release managment (if desired) may be (more) elegant
   #   choco install gh
-  #   with the "Github CLI" command line utility: gh (https://github.com/cli/cli#installation)
+  #   with the "Github CLI" command line utility:  gh (https://github.com/cli/cli#installation)
   #
   - provider: GitHub
     release: zzzGithubFakeCache
