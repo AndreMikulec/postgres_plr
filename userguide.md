@@ -197,22 +197,29 @@ R_HOME=C:\Progra~1\R\R-3.5.1
 Path=%PATH%;%R_HOME%\x64\bin
 ```
 
-In a Windows environment (in detail), with a plr compiled using Microsoft Visual Studio [https://github.com/postgres-plr/plr/releases/latest](https://github.com/postgres-plr/plr/releases/latest),
-with a PostgreSQL compiled with Microsoft Visual Studio [https://www.enterprisedb.com/downloads/postgres-postgresql-downloads](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads),
-and an R acquired from from [https://cran.r-project.org/bin/windows/base/](https://cran.r-project.org/bin/windows/base/)
+In a Windows environment (in detail), with a plr compiled 
+using Microsoft Visual Studio [https://github.com/postgres-plr/plr/releases/latest](https://github.com/postgres-plr/plr/releases/latest),
+with a PostgreSQL compiled 
+with Microsoft Visual Studio [https://www.enterprisedb.com/downloads/postgres-postgresql-downloads](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads),
+and an R acquired 
+from [https://cran.r-project.org/bin/windows/base/](https://cran.r-project.org/bin/windows/base/)
 do the following.
 
 
 First, Second, Third, and Fourth:
 
 
-First, download and install PostgreSQL compiled with Microsoft Visual Studio [https://www.enterprisedb.com/downloads/postgres-postgresql-downloads](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads)
-Download plr compiled using Microsoft Visual Studio [https://github.com/postgres-plr/plr/releases/latest](https://github.com/postgres-plr/plr/releases/latest)
+First, download and install PostgreSQL compiled with Microsoft Visual Studio 
+[https://www.enterprisedb.com/downloads/postgres-postgresql-downloads](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads)
+Download plr compiled using Microsoft Visual Studio 
+[https://github.com/postgres-plr/plr/releases/latest](https://github.com/postgres-plr/plr/releases/latest)
 
 Unzip the plr.zip file into a folder, that is called the "unzipped folder".
 If your installation of PostgreSQL had been into "C:\Program Files\PostgreSQL\12",
-then from the unzipped plr folder, place all of the .sql files and the plr.control file found in "share\extension" into "C:\Program Files\PostgreSQL\12\share\extension".
-From the unzipped plr folder, place the plr.dll file found in the "lib" folder into "C:\Program Files\PostgreSQL\12\lib".
+then from the unzipped plr folder, place all of the .sql files and the plr.control file 
+found in "share\extension" into "C:\Program Files\PostgreSQL\12\share\extension".
+From the unzipped plr folder, place the plr.dll file 
+found in the "lib" folder into "C:\Program Files\PostgreSQL\12\lib".
 
 
 
@@ -503,11 +510,11 @@ return(FALSE)
 ```postgresql
 SELECT name, overpaid(emp) FROM emp;
 
-name | overpaid
+name  | overpaid
 ------+----------
-Joe | t
-Jim | t
-Jon | f
+Joe   | t
+Jim   | t
+Jon   | f
 (3 rows)
 ```
 
@@ -525,11 +532,11 @@ return(df)
 ```postgresql
 SELECT * FROM get_emps();
 
-name | age | salary
+name  | age | salary
 ------+-----+-----------
-Jim | 41 | 250000.
-Joe | 25 | 120000.
-Jon | 35 | 50000.
+Jim   | 41  | 250000.
+Joe   | 25  | 120000.
+Jon   | 35  | 50000.
 (3 rows)
 ```
 
@@ -685,11 +692,11 @@ NOTICE: exit f1, pg.state.firstpass is FALSE
 NOTICE: enter f2, pg.state.firstpass is FALSE
 NOTICE: exit f2, pg.state.firstpass is FALSE
 
-f1 | f2 | f1
+f1  | f2 | f1
 ----+----+----
-0 | 0 | 1
-0 | 0 | 2
-0 | 0 | 3
+0   | 0  | 1
+0   | 0  | 2
+0   | 0  | 3
 (3 rows)
 ```
 ```postgresql
@@ -710,9 +717,9 @@ SELECT row_number2(), f1 FROM t;
 
 row_number2 | f1
 ------------+-----
-1 | 1
-2 | 2
-3 | 3
+1           | 1
+2           | 2
+3           | 3
 (3 rows)
 ```
 
@@ -749,11 +756,12 @@ SELECT * FROM test_spi_tup('SELECT oid, NULL::text as nullcol,
 typname FROM pg_type WHERE typname = ''oid'' OR typname = ''text''')
 AS t(typeid oid, nullcol text, typename name);
 
-typeid | nullcol | typename
+typeid  | nullcol | typename
 --------+---------+----------
-25 | | text
-26 | | oid
+25      |         | text
+26      |         | oid
 (2 rows)
+
 ```
 The NULL values were passed to R as `NA`, and on return to PostgreSQL they were converted back to NULL.
 
@@ -770,34 +778,34 @@ TYPENAMEOID, where the actual name of the type, in all capitals, is substituted 
 A support function, `load_r_typenames()` must be used to make the predefined global variables
 available for use:
 
-
-
 ```postgresql
 SELECT load_r_typenames();
+```
 load_r_typenames
 ------------------
 OK
 (1 row)
-```
+
 Another support function,`r_typenames()` may be used to list the predefined Global variables:
 
 ```postgresql
 SELECT * FROM r_typenames();
-typename | typeoid
------------------+---------
-ABSTIMEOID | 702
-ACLITEMOID | 1033
+
+typename    | typeoid
+------------+---------
+ABSTIMEOID  | 702
+ACLITEMOID  | 1033
 ANYARRAYOID | 2277
-ANYOID | 2276
-BITOID | 1560
-BOOLOID | 16
+ANYOID      | 2276
+BITOID      | 1560
+BOOLOID     | 16
 [...]
-TRIGGEROID | 2279
-UNKNOWNOID | 705
-VARBITOID | 1562
-VARCHAROID | 1043
-VOIDOID | 2278
-XIDOID | 28
+TRIGGEROID  | 2279
+UNKNOWNOID  | 705
+VARBITOID   | 1562
+VARCHAROID  | 1043
+VOIDOID     | 2278
+XIDOID      | 28
 (159 rows)
 ```
 
@@ -835,11 +843,10 @@ pg.spi.execp(pg.reval(arg1), list(arg2,arg3))
 ```
 ```postgresql
 SELECT * FROM test_spi_execp('sp','oid','text') AS t(typeid oid, typename name);
-
-typeid | typename
+typeid  | typename
 --------+----------
-25 | text
-26 | oid
+25      | text
+26      | oid
 (2 rows)
 ```
 ```postgresql
@@ -851,7 +858,6 @@ print(''OK'')
 ```postgresql
 SELECT test_spi_prep('SELECT oid, typname from pg_type
 where typname = ''bytea'' or typname = ''text''');
-
 test_spi_prep
 ---------------
 OK
@@ -865,10 +871,10 @@ pg.spi.execp(pg.reval(arg1), NA)
 ```postgresql
 SELECT * FROM test_spi_execp('sp') AS t(typeid oid, typename name);
 
-typeid | typename
+typeid  | typename
 --------+----------
-17 | bytea
-25 | text
+17      | bytea
+25      | text
 (2 rows)
 ```
 ```postgresql
@@ -880,7 +886,6 @@ print(''OK'')
 ```postgresql
 SELECT test_spi_prep('SELECT oid, typname FROM pg_type
 WHERE typname = ''bytea'' or typname = ''text''');
-
 test_spi_prep
 ---------------
 OK
@@ -893,15 +898,12 @@ pg.spi.execp(pg.reval(arg1))
 ```
 ```postgresql
 SELECT * FROM test_spi_execp('sp') AS t(typeid oid, typename name);
-
-typeid | typename
+typeid  | typename
 --------+----------
-17 | bytea
-25 | text
+17      | bytea
+25      | text
 (2 rows)
 ```
-
-
 NULL arguments should be passed as individual `NA` values in value_list.
 Except for the way in which the query and its arguments are specified,`pg.spi.execp` works just
 like `pg.spi.exec`.
@@ -1159,10 +1161,10 @@ INSERT INTO foo VALUES(9,'cat2',1.30);
 ```postgresql
 SELECT f1, median(f2) FROM foo GROUP BY f1 ORDER BY f1;
 
-f1 | median
+f1    | median
 ------+--------
-cat1 | 1.21
-cat2 | 1.28
+cat1  | 1.21
+cat2  | 1.28
 (2 rows)
 ```
 A more complex aggregate might be created by using a PL/R functions for both state transition and finalizer.
@@ -1432,7 +1434,6 @@ Trigger procedures can be written in PL/R. PostgreSQL requires that a procedure 
 trigger must be declared as a function with no arguments and a return type of `trigger`.
 The information from the trigger manager is passed to the procedure body in the following variables:
 
-
 `pg.tg.name`
 
 The name of the trigger from the `CREATE TRIGGER` statement.
@@ -1625,7 +1626,7 @@ pg.thrownotice(''Hello, world!'')
 ';
 ```
 In the user console:
-```
+```text
 NOTICE:  Hello, world!
 DO
 ```
