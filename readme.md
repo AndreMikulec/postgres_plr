@@ -36,6 +36,23 @@ copyright holders instructions (see the link below).
 
 https://github.com/AndreMikulec/postgres_plr/blob/master/userguide.md
 
+Includes: 
+
+* Examples in more detail
+* Extra examples
+* Extended expanation on how to install "Visual Studio" compiled plr on Windows
+* Installing(compiling) using MSYS2 and using an R-sub arcitecture
+* Stored Procedures
+* Inline Functions
+
+Also, includes:
+
+* PostgreSQL researved words are capitalized
+* PLR code string delimiting method is consistent
+* The Window Functions area is re-organzied and enhanced
+* Re-write of obsolete LANGUAGE clause (errors are fixed)
+* Indentation for easier reading
+
 The copyright holders instructions here (link).
 
 https://github.com/postgres-plr/plr/blob/master/userguide.md
