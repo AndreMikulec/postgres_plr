@@ -1206,7 +1206,7 @@ The number of rows in the current `WINDOW` frame.
 
 `prownum` (not shown)
 
-Provides the 1-based row offset of the current row in the current `PARTITION`.
+Provides the 1-based, row offset of the current row, in the current `PARTITION`.
 
 A more complete example follows:
 
@@ -1249,10 +1249,6 @@ In this example, the variables `farg1` and `farg2` contain the current row value
 as the preceding 8 rows which are also in the same `WINDOW` frame within the same `PARTITION`. In this
 case since no `PARTITION` is explicitly defined, the `PARTITION` is the entire set of rows returned from the
 inner sub-select.
-
-For optimization reasons, constant expressions are not expanded, and corresponding `farg2` in the example above
-is passes with NULL value for compatibility reasons not to shift other arguments in functions users created
-with previous versions of PL/R.
 
 In these next examples, use of the variables `arg1`,`farg1`,`fnumrows`,` and `prownum` are illustrated in detail.
 The window frame is saved into a dedicated R environment `farg#` and only `farg1` in these simple examples.
@@ -1370,6 +1366,12 @@ SELECT fyear, eps,
 winsorize(eps, 0.1) OVER (PARTITION BY fyear) AS w_eps
 FROM test_data ORDER BY fyear, eps;
 ```
+For optimization reasons, constant expressions are not expanded.
+
+The corresponding `farg2`  in the `Winsorize` example above is passes with NULL value.
+Compatibility reasons exist, so that other arguments are not shifted, in functions users 
+created with previous versions of PL/R.
+
 
 
 ## Loading R Modules at Startup <a name='startup'></a>
