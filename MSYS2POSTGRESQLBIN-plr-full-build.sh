@@ -29,8 +29,6 @@ cd -
 #
 # see my postgresql configuration
 #
-psql --version
-#
 pg_config
 
 
@@ -40,9 +38,9 @@ pg_config
 #
 if [ ! -d "${PGINSTALL}/share/postgresql" ]
 then
-  local DIRPOSTGRESQL=""
+  DIRPOSTGRESQL=""
 else
-  local DIRPOSTGRESQL="/postgresql"
+  DIRPOSTGRESQL="/postgresql"
 fi
 
 
