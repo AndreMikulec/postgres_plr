@@ -80,6 +80,14 @@ install:
   - pacman --noconfirm -Suu
   #
   ## postgresql ##
+
+  #
+  # current-ish version - may be release six(6) months after the PG release date - or later
+  #
+  # always install . . . later - sometimes - maybe - attempt a downgrade
+  #
+  - sh -login -c "pacman --noconfirm -S --needed ${MINGW_PACKAGE_PREFIX}-postgresql"
+  #
   #
   # this OLD(er) version - may or "may not" work
   #
@@ -87,12 +95,19 @@ install:
   # 2015
   # https://stackoverflow.com/questions/33969803/how-to-obtain-older-versions-of-packages-using-msys2
   #
-  - if not "%MSYS2POSTGRESQLBINURLOLD%" == "NONE" curl                   -o install.pkg.tar.zst %MSYS2POSTGRESQLBINURLOLD%
-  - if not "%MSYS2POSTGRESQLBINURLOLD%" == "NONE" bash -login -c 'pacman -U install.pkg.tar.zst'
+  - if not "%MSYS2POSTGRESQLBINURLOLD%" == "NONE" bash -login -c 'curl   -o             install.pkg.tar.zst ${MSYS2POSTGRESQLBINURLOLD}'
+  - if not "%MSYS2POSTGRESQLBINURLOLD%" == "NONE" bash -login -c 'pacman -U --noconfirm install.pkg.tar.zst'
+  # warning: downgrading package mingw-w64-x86_64-postgresql (13.1-1 => 12.4-1)
+  # resolving dependencies...
+  # looking for conflicting packages...
+
   #
-  # current-ish version - may be six(6) months after the PG release date - or later
+  # attempt to get the PG version
   #
-  - if     "%MSYS2POSTGRESQLBINURLOLD%" == "NONE" sh -login -c "pacman --noconfirm -S --needed ${MINGW_PACKAGE_PREFIX}-postgresql"
+  - sh -login -c "postgres -V | grep -oP '(?<=\) ).*$' > $(cygpath ${APPVEYOR_BUILD_FOLDER})/PG_VERSION.txt"
+  - for /f "delims=" %%i in (PG_VERSION.txt) do (set PG_VERSION=%%i)
+  - type  PG_VERSION.txt
+  - echo %PG_VERSION%
   #
   ## tool to save artifacts ##
   #
@@ -129,11 +144,11 @@ test_script:
   - bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/MSYS2POSTGRESQLBIN-plr-full-test.sh
 
 on_success:
-  - bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/MSYS2POSTGRESQLBIN-plr-full-on_success.sh
+  - bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/MSYS2POSTGRESQLBIN-plr-full-on-success.sh
 
 artifacts:
   - path: 'BUILD_MSYS2POSTGRESQLBIN_%APPVEYOR_BUILD_VERSION%_PLR_*.tar.gz'
-    name: "BUILD_MSYS2POSTGRESQLBIN_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%_%BUILD_CONFIG%"
+    name: "BUILD_MSYS2POSTGRESQLBIN_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_VERSION%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%_%BUILD_CONFIG%"
 
 cache:
   - 'R-%R_OLD_VERSION%-win.exe'
@@ -141,10 +156,10 @@ cache:
 
 deploy:
   - provider: GitHub
-    release: "BUILD_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%"
+    release: "BUILD_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_PG_%PG_VERSION%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%"
     auth_token:
       secure: KzS1DumC2yBg2LGN9x3AemHFOjAdp+rD58rW5aGGpwW4Pfdwdm7AmRpYKprPY8Gs
-    artifact: "BUILD_MSYS2POSTGRESQLBIN_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%_%BUILD_CONFIG%"
+    artifact: "BUILD_MSYS2POSTGRESQLBIN_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_VERSION%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%_%BUILD_CONFIG%"
     draft: false
     prerelease: false
 

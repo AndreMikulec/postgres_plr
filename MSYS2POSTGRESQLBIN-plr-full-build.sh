@@ -46,13 +46,6 @@ fi
 
 
 #
-# determine the postgresql version
-#
-export PGVERSION=$(postgres -V | grep -oP '(?<=\) ).*$')
-
-
-
-#
 # build and install OLD R PLR
 #
 export R_HOME_ORIG=${R_HOME}
@@ -77,7 +70,7 @@ cp -r -p ${PGINSTALL}/lib${DIRPOSTGRESQL}/plr*.*             ${ZIPTMP}/lib
 mkdir -p                                                     ${ZIPTMP}/share
 cp -r -p ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.* ${ZIPTMP}/share
 #
-export ZIP=BUILD_MSYS2POSTGRESQLBIN_${APPVEYOR_BUILD_VERSION}_PLR_${PLR_TAG}_${PLR_GIT_COMMIT}_${MSYSTEM}_PG_${PGVERSION}_R_${R_OLD_VERSION}_${BUILD_CONFIG}.tar.gz
+export ZIP=BUILD_MSYS2POSTGRESQLBIN_${APPVEYOR_BUILD_VERSION}_PLR_${PLR_TAG}_${PLR_GIT_COMMIT}_${MSYSTEM}_PG_${PG_VERSION}_R_${R_OLD_VERSION}_${BUILD_CONFIG}.tar.gz
 cd ${ZIPTMP}
 tar -zcvf ${APPVEYOR_BUILD_FOLDER}/${ZIP} *
 cd -
@@ -109,7 +102,7 @@ export R_HOME=${R_HOME_ORIG}
 
 
 #
-# save OLD R PLR in a zip
+# save CUR R PLR in a zip
 #
 mkdir -p                                                     ${ZIPTMP}
 cp    -p ${PLRSOURCE}/LICENSE                                ${ZIPTMP}/PLR_LICENSE
@@ -118,7 +111,7 @@ cp -r -p ${PGINSTALL}/lib${DIRPOSTGRESQL}/plr*.*             ${ZIPTMP}/lib
 mkdir -p                                                     ${ZIPTMP}/share
 cp -r -p ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.* ${ZIPTMP}/share
 #
-export ZIP=BUILD_MSYS2POSTGRESQLBIN_${APPVEYOR_BUILD_VERSION}_PLR_${PLR_TAG}_${PLR_GIT_COMMIT}_${MSYSTEM}_PG_${PGVERSION}_R_${R_CUR_VERSION}_${BUILD_CONFIG}.tar.gz
+export ZIP=BUILD_MSYS2POSTGRESQLBIN_${APPVEYOR_BUILD_VERSION}_PLR_${PLR_TAG}_${PLR_GIT_COMMIT}_${MSYSTEM}_PG_${PG_VERSION}_R_${R_CUR_VERSION}_${BUILD_CONFIG}.tar.gz
 cd ${ZIPTMP}
 tar -zcvf ${APPVEYOR_BUILD_FOLDER}/${ZIP} *
 cd -
