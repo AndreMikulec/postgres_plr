@@ -90,7 +90,7 @@ install:
   - if not "%MSYS2POSTGRESQLBINURLOLD%" == "NONE" curl                   -o install.pkg.tar.zst %MSYS2POSTGRESQLBINURLOLD%
   - if not "%MSYS2POSTGRESQLBINURLOLD%" == "NONE" bash -login -c 'pacman -U install.pkg.tar.zst'
   #
-  # current-ish version - may be six(6) months after the PG release date or later
+  # current-ish version - may be six(6) months after the PG release date - or later
   #
   - if     "%MSYS2POSTGRESQLBINURLOLD%" == "NONE" sh -login -c "pacman --noconfirm -S --needed ${MINGW_PACKAGE_PREFIX}-postgresql"
   #
@@ -107,6 +107,12 @@ install:
   - cd %PLRSOURCE%
   - for /f "delims=" %%i in ('git rev-parse --short HEAD') do (set PLR_GIT_COMMIT=%%i)
   - cd %APPVEYOR_BUILD_FOLDER%
+
+  #
+  # acquire R
+  #
+  - if not exist R-%R_OLD_VERSION%-win.exe curl https://cran.r-project.org/bin/windows/base/old/%R_OLD_VERSION%/R-%R_OLD_VERSION%-win.exe -o R-%R_OLD_VERSION%-win.exe
+  - if not exist R-%R_CUR_VERSION%-win.exe curl https://cran.r-project.org/bin/windows/base/old/%R_CUR_VERSION%/R-%R_CUR_VERSION%-win.exe -o R-%R_CUR_VERSION%-win.exe
   #
   ## place OLD R on disk ##
   #
@@ -128,6 +134,10 @@ on_success:
 artifacts:
   - path: 'BUILD_MSYS2POSTGRESQLBIN_%APPVEYOR_BUILD_VERSION%_PLR_*.tar.gz'
     name: "BUILD_MSYS2POSTGRESQLBIN_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%_%BUILD_CONFIG%"
+
+cache:
+  - 'R-%R_OLD_VERSION%-win.exe'
+  - 'R-%R_CUR_VERSION%-win.exe'
 
 deploy:
   - provider: GitHub
