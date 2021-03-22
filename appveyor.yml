@@ -1,5 +1,5 @@
 
-version: 0.1.{build}.{branch}
+version: 1.0.{build}.{branch}
 
 # Do not build on tags (GitHub and BitBucket)
 skip_tags: true
@@ -22,9 +22,12 @@ environment:
   # PLR_TAG: REL8_4_1
   # temporary until Dave Cramer pushes tag REL8_4_2
   PLR_TAG: master
+  PLR_TAG_SHORT: latest_commit
   PLRSOURCE: $(APPVEYOR_BUILD_FOLDER)\plr
   R_OLD_VERSION: 3.6.3
+  R_OLD_VERSION_SHORT: 3.6
   R_CUR_VERSION: 4.0.3
+  R_CUR_VERSION_SHORT: 4.0
   R_HOME: $(APPVEYOR_BUILD_FOLDER)\RINSTALL
   ZIPTMP: $(APPVEYOR_BUILD_FOLDER)\ZIPTMP
 
@@ -74,11 +77,12 @@ matrix:
     - MSYSTEM: MINGW64
       MSYS2POSTGRESQLBINURLOLD: http://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-postgresql-12.4-1-any.pkg.tar.zst
 
+init:
+  - "@echo off"
+
 install:
   - echo ************* skipping tests (ALWAYS getting this error) *************
-  - echo
   - echo USE_PGXS=1 installcheck PGUSER=postgres || (cat regression.diffs && false)
-  - echo
   - echo make [C:/msys64/mingw64/lib/POSTGR~1/pgxs/src/MAKEFI~1/pgxs.mk 420 installcheck] Error 1
   - echo create extension plr;
   - echo +ERROR:  could not load library "C:/msys64/mingw64/lib/postgresql/plr.dll" The specified module could not be found.
@@ -114,12 +118,23 @@ install:
   # looking for conflicting packages...
 
   #
+  # fancy build date
+  - sh -login -c "echo $(date '+%Ym%md%d') > $(cygpath ${APPVEYOR_BUILD_FOLDER})/FANCY_BUILD_DAY.txt"
+  - for /f "delims=" %%i in (FANCY_BUILD_DAY.txt) do (set FANCY_BUILD_DAY=%%i)
+  - type  FANCY_BUILD_DAY.txt
+  - echo %FANCY_BUILD_DAY%
+  #
   # attempt to get the PG version
   #
   - sh -login -c "postgres -V | grep -oP '(?<=\) ).*$' > $(cygpath ${APPVEYOR_BUILD_FOLDER})/PG_VERSION.txt"
   - for /f "delims=" %%i in (PG_VERSION.txt) do (set PG_VERSION=%%i)
   - type  PG_VERSION.txt
   - echo %PG_VERSION%
+  #
+  - sh -login -c "cat $(cygpath ${APPVEYOR_BUILD_FOLDER})/PG_VERSION.txt | grep -oP '^\d+' > ${APPVEYOR_BUILD_FOLDER})/PG_VERSION_SHORT.txt"
+  - for /f "delims=" %%i in (PG_VERSION_SHORT.txt) do (set PG_VERSION_SHORT=%%i)
+  - type  PG_VERSION_SHORT.txt
+  - echo %PG_VERSION_SHORT%
   #
   # attempt to get the PG share and lib directories offset
   #
@@ -165,8 +180,8 @@ on_success:
   - bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/MSYS2POSTGRESQLBIN-plr-full-on-success.sh"
 
 artifacts:
-  - path: 'BUILD_MSYS2POSTGRESQLBIN_%APPVEYOR_BUILD_VERSION%_PLR_*.tar.gz'
-    name: "BUILD_MSYS2POSTGRESQLBIN_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_VERSION%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%_%BUILD_CONFIG%"
+  - path: 'PLR_MSYS2POSTGRESQLBIN_%APPVEYOR_BUILD_VERSION%_%FANCY_BUILD_DAY%_PLR_*.tar.gz'
+    name: "PLR_MSYS2POSTGRESQLBIN_%APPVEYOR_BUILD_VERSION%_%FANCY_BUILD_DAY%_PLR_%PLR_TAG_SHORT%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_VERSION_SHORT%_R_%R_CUR_VERSION_SHORT%_AND_R_%R_OLD_VERSION_SHORT%_%BUILD_CONFIG%"
 
 cache:
   - 'R-%R_OLD_VERSION%-win.exe'
@@ -174,10 +189,10 @@ cache:
 
 deploy:
   - provider: GitHub
-    release: "BUILD_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_PG_%PG_VERSION%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%"
+    release: "PLR_%APPVEYOR_BUILD_VERSION%_%FANCY_BUILD_DAY%_PLR_%PLR_TAG_SHORT%_%PLR_GIT_COMMIT%_PG_%PG_VERSION_SHORT%_R_%R_CUR_VERSION_SHORT%_AND_R_%R_OLD_VERSION_SHORT%"
     auth_token:
       secure: KzS1DumC2yBg2LGN9x3AemHFOjAdp+rD58rW5aGGpwW4Pfdwdm7AmRpYKprPY8Gs
-    artifact: "BUILD_MSYS2POSTGRESQLBIN_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_VERSION%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%_%BUILD_CONFIG%"
+    artifact: "PLR_MSYS2POSTGRESQLBIN_%APPVEYOR_BUILD_VERSION%_%FANCY_BUILD_DAY%_PLR_%PLR_TAG_SHORT%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_VERSION_SHORT%_R_%R_CUR_VERSION_SHORT%_AND_R_%R_OLD_VERSION_SHORT%_%BUILD_CONFIG%"
     draft: false
     prerelease: false
 

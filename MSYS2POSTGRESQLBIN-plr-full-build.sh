@@ -100,7 +100,8 @@ cp       ${PGINSTALL}/lib${DIRPOSTGRESQL}/plr*.*             ${ZIPTMP}/lib
 mkdir -p                                                     ${ZIPTMP}/share
 cp       ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.* ${ZIPTMP}/share
 #
-export ZIP=BUILD_MSYS2POSTGRESQLBIN_${APPVEYOR_BUILD_VERSION}_PLR_${PLR_TAG}_${PLR_GIT_COMMIT}_${MSYSTEM}_PG_${PG_VERSION}_R_${R_OLD_VERSION}_${BUILD_CONFIG}.tar.gz
+
+export ZIP=PLR_MSYS2POSTGRESQLBIN_${APPVEYOR_BUILD_VERSION}_${FANCY_BUILD_DAY}_PLR_${PLR_TAG_SHORT}_${PLR_GIT_COMMIT}_${MSYSTEM}_PG_${PG_VERSION_SHORT}_R_${R_OLD_VERSION_SHORT}_${BUILD_CONFIG}.tar.gz
 cd ${ZIPTMP}
 tar -zcvf ${APPVEYOR_BUILD_FOLDER}/${ZIP} *
 cd -
@@ -149,7 +150,7 @@ cp       ${PGINSTALL}/lib${DIRPOSTGRESQL}/plr*.*             ${ZIPTMP}/lib
 mkdir -p                                                     ${ZIPTMP}/share
 cp       ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.* ${ZIPTMP}/share
 #
-export ZIP=BUILD_MSYS2POSTGRESQLBIN_${APPVEYOR_BUILD_VERSION}_PLR_${PLR_TAG}_${PLR_GIT_COMMIT}_${MSYSTEM}_PG_${PG_VERSION}_R_${R_CUR_VERSION}_${BUILD_CONFIG}.tar.gz
+export ZIP=PLR_MSYS2POSTGRESQLBIN_${APPVEYOR_BUILD_VERSION}_${FANCY_BUILD_DAY}_PLR_${PLR_TAG_SHORT}_${PLR_GIT_COMMIT}_${MSYSTEM}_PG_${PG_VERSION_SHORT}_R_${R_CUR_VERSION_SHORT}_${BUILD_CONFIG}.tar.gz
 cd ${ZIPTMP}
 tar -zcvf ${APPVEYOR_BUILD_FOLDER}/${ZIP} *
 cd -
