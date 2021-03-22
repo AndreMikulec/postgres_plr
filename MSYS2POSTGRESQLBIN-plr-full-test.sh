@@ -9,9 +9,8 @@ export PLRSOURCE=$(cygpath "${PLRSOURCE}")
 export R_HOME=$(cygpath "${R_HOME}")
 
 
-
-
-
+# cluster, database(creation), and session default
+export TZ=UTC
 
 # cluster
 #
@@ -19,7 +18,6 @@ export R_HOME=$(cygpath "${R_HOME}")
 export PGAPPDIR="$HOME"${MSYSTEM_PREFIX}/"postgres/Data"
 #
 export     PGDATA=${PGAPPDIR}
-mkdir -p ${PGDATA}
 export      PGLOG=${PGAPPDIR}/log.txt
 export PGLOCALDIR=${MSYSTEM_PREFIX}/share/postgresql/
 
@@ -27,7 +25,10 @@ export PGLOCALDIR=${MSYSTEM_PREFIX}/share/postgresql/
 export PGDATABASE=postgres
 export PGPORT=5432
 export PGUSER=postgres
-export TZ=UTC
+
+rm -fr ${PGDATA}
+initdb --username=${PGUSER} --pgdata="${PGDATA}" --auth=trust --encoding=utf8 --locale=C
+rm -fr ${PGDATA}
 initdb --username=${PGUSER} --pgdata="${PGDATA}" --auth=trust --encoding=utf8 --locale=C
 
 pg_ctl start -D "${PGDATA}" -l "{PGLOG}"
