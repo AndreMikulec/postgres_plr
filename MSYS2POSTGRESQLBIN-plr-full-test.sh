@@ -14,8 +14,8 @@ export R_HOME=$(cygpath "${R_HOME}")
 #
 # create a cluster and start
 #
-mkdir -p ./Data
-export PGDATA=./Data
+export    PGDATA=$(pwd)/Data
+mkdir -p $PGDATA
 export TZ=UTC
 initdb -E utf8 --locale=C
 pg_ctl start -w
