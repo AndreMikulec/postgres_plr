@@ -72,6 +72,7 @@ pg_ctl start -D "${PGDATA}" -l "${PGLOG}"
 export R_HOME_ORIG=${R_HOME}
 export R_HOME=${R_HOME}OLD
 export PATH_ORIG=$PATH
+# required: create extension plr;
 export PATH=${R_HOME}/bin${R_ARCH}:$PATH
 which R
 [ ! $? -eq 0 ] && pg_ctl stop -D "${PGDATA}" && exit 1
@@ -79,8 +80,8 @@ which R
 cd ${PLRSOURCE}
 USE_PGXS=1 make
 USE_PGXS=1 make install
-make installcheck PGUSER=postgres || (cat regression.diffs && false)
-[ ! $? -eq 0 ] && pg_ctl stop -D "${PGDATA}" && exit 1
+USE_PGXS=1 make installcheck PGUSER=postgres || (cat regression.diffs && false)
+USE_PGXS=1 [ ! $? -eq 0 ] && pg_ctl stop -D "${PGDATA}" && exit 1
 USE_PGXS=1 make clean
 cd -
 export R_HOME=${R_HOME_ORIG}
@@ -121,6 +122,7 @@ rm    ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.*
 export R_HOME_ORIG=${R_HOME}
 export R_HOME=${R_HOME}CUR
 export PATH_ORIG=$PATH
+# required: create extension plr;
 export PATH=${R_HOME}/bin${R_ARCH}:$PATH
 which R
 [ ! $? -eq 0 ] && pg_ctl stop -D "${PGDATA}" && exit 1
@@ -128,7 +130,7 @@ which R
 cd ${PLRSOURCE}
 USE_PGXS=1 make
 USE_PGXS=1 make install
-installcheck PGUSER=postgres || (cat regression.diffs && false)
+USE_PGXS=1 installcheck PGUSER=postgres || (cat regression.diffs && false)
 [ ! $? -eq 0 ] && pg_ctl stop -D "${PGDATA}" && exit 1
 USE_PGXS=1 make clean
 cd -
