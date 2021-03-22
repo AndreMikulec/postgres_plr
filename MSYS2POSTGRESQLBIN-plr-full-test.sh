@@ -11,14 +11,26 @@ export R_HOME=$(cygpath "${R_HOME}")
 
 
 
+
+
+# cluster
 #
-# create a cluster and start
+# in the users home directory
+export PGAPPDIR="$HOME"${MSYSTEM_PREFIX}/"postgres/Data"
 #
-export    PGDATA=$(pwd)/Data
-mkdir -p $PGDATA
+export     PGDATA=${PGAPPDIR}
+export      PGLOG=${PGAPPDIR}/log.txt
+export PGLOCALDIR=${MSYSTEM_PREFIX}/share/postgresql/
+
+# database
+export PGDATABASE=postgres
+export PGPORT=5432
+export PGUSER=postgres
 export TZ=UTC
-initdb -E utf8 --locale=C
-pg_ctl start -w
+initdb --username=${PGUSER} --pgdata="${PGDATA}" --auth=trust --encoding=utf8 --locale=C
+
+pg_ctl start -D "${PGDATA}" -l "{PGLOG}"
+
 
 
 
@@ -46,4 +58,5 @@ export R_HOME=${R_HOME_ORIG}
 
 
 
-pg_ctl stop -w
+pg_ctl stop -D "${PGDATA}"
+
