@@ -19,6 +19,7 @@ clone_depth: 1
 environment:
   APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
   APPVEYOR_SAVE_CACHE_ON_ERROR: true
+  PG_MANY_RELEASES: 13_AND_12
   # PLR_TAG: REL8_4_1
   # temporary until Dave Cramer pushes tag REL8_4_2
   PLR_TAG: master
@@ -94,9 +95,16 @@ install:
   #
   - pacman --noconfirm -Syuu
   - pacman --noconfirm -Suu
+ 
+  # fancy build date
+  - bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/MSYS2POSTGRESQLBIN-FANCY-BUILD_DAY.sh"
+  - for /f "delims=" %%i in (FANCY_BUILD_DAY.txt) do (set FANCY_BUILD_DAY=%%i)
+  - type  FANCY_BUILD_DAY.txt
+  - echo %FANCY_BUILD_DAY%
+  #
   #
   ## postgresql ##
-
+  #
   #
   # current-ish version - may be release six(6) months after the PG release date - or later
   #
@@ -116,13 +124,6 @@ install:
   # warning: downgrading package mingw-w64-x86_64-postgresql (13.1-1 => 12.4-1)
   # resolving dependencies...
   # looking for conflicting packages...
-
-  #
-  # fancy build date
-  - bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/MSYS2POSTGRESQLBIN-FANCY-BUILD_DAY.sh"
-  - for /f "delims=" %%i in (FANCY_BUILD_DAY.txt) do (set FANCY_BUILD_DAY=%%i)
-  - type  FANCY_BUILD_DAY.txt
-  - echo %FANCY_BUILD_DAY%
   #
   # attempt to get the PG version
   #
@@ -130,6 +131,8 @@ install:
   - for /f "delims=" %%i in (PG_VERSION.txt) do (set PG_VERSION=%%i)
   - type  PG_VERSION.txt
   - echo %PG_VERSION%
+  #
+  # CURRENTLY - NOT USED - ANYWHERE ( I HARDECODE IN THE RELEASE NAME - var - PG_MANY_RELEASES )
   #
   - sh -login -c "cat $(cygpath ${APPVEYOR_BUILD_FOLDER})/PG_VERSION.txt | grep -oP '^\d+' > $(cygpath ${APPVEYOR_BUILD_FOLDER})/PG_VERSION_SHORT.txt"
   - for /f "delims=" %%i in (PG_VERSION_SHORT.txt) do (set PG_VERSION_SHORT=%%i)
@@ -189,7 +192,7 @@ cache:
 
 deploy:
   - provider: GitHub
-    release: "PLR_%APPVEYOR_BUILD_VERSION%_%FANCY_BUILD_DAY%_PLR_%PLR_TAG_SHORT%_%PLR_GIT_COMMIT%_PG_%PG_VERSION_SHORT%_R_%R_CUR_VERSION_SHORT%_AND_R_%R_OLD_VERSION_SHORT%"
+    release: "PLR_%APPVEYOR_BUILD_VERSION%_%FANCY_BUILD_DAY%_PLR_%PLR_TAG_SHORT%_%PLR_GIT_COMMIT%_PG_%PG_MANY_RELEASES%_R_%R_CUR_VERSION_SHORT%_AND_R_%R_OLD_VERSION_SHORT%"
     auth_token:
       secure: KzS1DumC2yBg2LGN9x3AemHFOjAdp+rD58rW5aGGpwW4Pfdwdm7AmRpYKprPY8Gs
     artifact: "PLR_MSYS2POSTGRESQLBIN_%APPVEYOR_BUILD_VERSION%_%FANCY_BUILD_DAY%_PLR_%PLR_TAG_SHORT%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_VERSION_SHORT%_R_%R_CUR_VERSION_SHORT%_AND_R_%R_OLD_VERSION_SHORT%_%BUILD_CONFIG%"
