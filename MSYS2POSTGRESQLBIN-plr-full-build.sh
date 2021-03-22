@@ -41,6 +41,11 @@ export R_HOME=${R_HOME}OLD
 cd ${PLRSOURCE}
 USE_PGXS=1 make
 USE_PGXS=1 make install
+#
+# save for later testing
+#
+mkdir -p                ${PLRSOURCE}OLD
+cp    -r ${PLRSOURCE}/* ${PLRSOURCE}OLD
 USE_PGXS=1 make clean
 cd -
 export R_HOME=${R_HOME_ORIG}
@@ -52,11 +57,11 @@ export R_HOME=${R_HOME_ORIG}
 # save OLD R PLR in a zip
 #
 mkdir -p                                                     ${ZIPTMP}
-cp    -p ${PLRSOURCE}/LICENSE                                ${ZIPTMP}/PLR_LICENSE
+cp       ${PLRSOURCE}/LICENSE                                ${ZIPTMP}/PLR_LICENSE
 mkdir -p                                                     ${ZIPTMP}/lib
-cp -r -p ${PGINSTALL}/lib${DIRPOSTGRESQL}/plr*.*             ${ZIPTMP}/lib
+cp       ${PGINSTALL}/lib${DIRPOSTGRESQL}/plr*.*             ${ZIPTMP}/lib
 mkdir -p                                                     ${ZIPTMP}/share
-cp -r -p ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.* ${ZIPTMP}/share
+cp       ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.* ${ZIPTMP}/share
 #
 export ZIP=BUILD_MSYS2POSTGRESQLBIN_${APPVEYOR_BUILD_VERSION}_PLR_${PLR_TAG}_${PLR_GIT_COMMIT}_${MSYSTEM}_PG_${PG_VERSION}_R_${R_OLD_VERSION}_${BUILD_CONFIG}.tar.gz
 cd ${ZIPTMP}
@@ -70,9 +75,9 @@ cd -
 #
 mkdir -p                                                     ${PGINSTALL}OLD
 mkdir -p                                                     ${PGINSTALL}OLD/lib${DIRPOSTGRESQL}
-cp    -r ${PGINSTALL}/lib${DIRPOSTGRESQL}/plr*.*             ${PGINSTALL}OLD/lib${DIRPOSTGRESQL}
+cp       ${PGINSTALL}/lib${DIRPOSTGRESQL}/plr*.*             ${PGINSTALL}OLD/lib${DIRPOSTGRESQL}
 mkdir -p                                                     ${PGINSTALL}OLD/share${DIRPOSTGRESQL}/extension
-cp    -r ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.* ${PGINSTALL}OLD/share${DIRPOSTGRESQL}/extension
+cp       ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.* ${PGINSTALL}OLD/share${DIRPOSTGRESQL}/extension
 
 
 
@@ -93,6 +98,11 @@ export R_HOME=${R_HOME}CUR
 cd ${PLRSOURCE}
 USE_PGXS=1 make
 USE_PGXS=1 make install
+#
+# save for later testing
+#
+mkdir -p                ${PLRSOURCE}CUR
+cp    -r ${PLRSOURCE}/* ${PLRSOURCE}CUR
 USE_PGXS=1 make clean
 cd -
 export R_HOME=${R_HOME_ORIG}
@@ -104,11 +114,11 @@ export R_HOME=${R_HOME_ORIG}
 # save CUR R PLR in a zip
 #
 mkdir -p                                                     ${ZIPTMP}
-cp    -p ${PLRSOURCE}/LICENSE                                ${ZIPTMP}/PLR_LICENSE
+cp       ${PLRSOURCE}/LICENSE                                ${ZIPTMP}/PLR_LICENSE
 mkdir -p                                                     ${ZIPTMP}/lib
-cp -r -p ${PGINSTALL}/lib${DIRPOSTGRESQL}/plr*.*             ${ZIPTMP}/lib
+cp       ${PGINSTALL}/lib${DIRPOSTGRESQL}/plr*.*             ${ZIPTMP}/lib
 mkdir -p                                                     ${ZIPTMP}/share
-cp -r -p ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.* ${ZIPTMP}/share
+cp       ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.* ${ZIPTMP}/share
 #
 export ZIP=BUILD_MSYS2POSTGRESQLBIN_${APPVEYOR_BUILD_VERSION}_PLR_${PLR_TAG}_${PLR_GIT_COMMIT}_${MSYSTEM}_PG_${PG_VERSION}_R_${R_CUR_VERSION}_${BUILD_CONFIG}.tar.gz
 cd ${ZIPTMP}
@@ -122,9 +132,9 @@ cd -
 #
 mkdir -p                                                     ${PGINSTALL}CUR
 mkdir -p                                                     ${PGINSTALL}CUR/lib${DIRPOSTGRESQL}
-cp    -r ${PGINSTALL}/lib${DIRPOSTGRESQL}/plr*.*             ${PGINSTALL}CUR/lib${DIRPOSTGRESQL}
+cp       ${PGINSTALL}/lib${DIRPOSTGRESQL}/plr*.*             ${PGINSTALL}CUR/lib${DIRPOSTGRESQL}
 mkdir -p                                                     ${PGINSTALL}CUR/share${DIRPOSTGRESQL}/extension
-cp    -r ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.* ${PGINSTALL}CUR/share${DIRPOSTGRESQL}/extension
+cp       ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.* ${PGINSTALL}CUR/share${DIRPOSTGRESQL}/extension
 
 
 

@@ -29,12 +29,6 @@ environment:
   ZIPTMP: $(APPVEYOR_BUILD_FOLDER)\ZIPTMP
 
   matrix:
-    - MSYSTEM: MINGW32
-      MSYS2POSTGRESQLBINURLOLD: NONE
-      PGINSTALL: C:/msys64/mingw32
-      BUILD_CONFIG: Release
-      R_ARCH: /i386
-      COMPONENTS_ARCH: ',i386'
 
     - MSYSTEM: MINGW64
       MSYS2POSTGRESQLBINURLOLD: NONE
@@ -51,7 +45,7 @@ environment:
       COMPONENTS_ARCH: ',x64'
 
     - MSYSTEM: MINGW32
-      MSYS2POSTGRESQLBINURLOLD: http://repo.msys2.org/mingw/i686/mingw-w64-i686-postgresql-12.4-1-any.pkg.tar.zst
+      MSYS2POSTGRESQLBINURLOLD: NONE
       PGINSTALL: C:/msys64/mingw32
       BUILD_CONFIG: Release
       R_ARCH: /i386
@@ -63,6 +57,15 @@ environment:
       BUILD_CONFIG: Release
       R_ARCH: /x64
       COMPONENTS_ARCH: ',x64'
+
+    - MSYSTEM: MINGW32
+      MSYS2POSTGRESQLBINURLOLD: http://repo.msys2.org/mingw/i686/mingw-w64-i686-postgresql-12.4-1-any.pkg.tar.zst
+      PGINSTALL: C:/msys64/mingw32
+      BUILD_CONFIG: Release
+      R_ARCH: /i386
+      COMPONENTS_ARCH: ',i386'
+
+
 
 matrix:
   allow_failures:
