@@ -131,7 +131,7 @@ install:
   - type  PG_VERSION.txt
   - echo %PG_VERSION%
   #
-  - sh -login -c "cat $(cygpath ${APPVEYOR_BUILD_FOLDER})/PG_VERSION.txt | grep -oP '^\d+' > ${APPVEYOR_BUILD_FOLDER})/PG_VERSION_SHORT.txt"
+  - sh -login -c "cat $(cygpath ${APPVEYOR_BUILD_FOLDER})/PG_VERSION.txt | grep -oP '^\d+' > $(cygpath ${APPVEYOR_BUILD_FOLDER})/PG_VERSION_SHORT.txt"
   - for /f "delims=" %%i in (PG_VERSION_SHORT.txt) do (set PG_VERSION_SHORT=%%i)
   - type  PG_VERSION_SHORT.txt
   - echo %PG_VERSION_SHORT%
