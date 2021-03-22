@@ -1,3 +1,10 @@
+
+
+set -v -x
+
+cd "$(dirname "$0")"
+
+
 #
 # determine the share and lib directories offset (if any)
 #

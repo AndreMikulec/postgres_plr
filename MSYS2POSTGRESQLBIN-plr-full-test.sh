@@ -34,6 +34,10 @@ winpty -Xallow-non-tty initdb --username=${PGUSER} --pgdata="${PGDATA}" --auth=t
 pg_ctl start -D "${PGDATA}" -l "${PGLOG}"
 
 
+# check postgres is in the path
+which postgres
+[ ! $? -eq 0 ] && exit 1
+
 
 #
 # clean up
@@ -51,12 +55,16 @@ cp -p ${PGINSTALL}OLD/share${DIRPOSTGRESQL}/extension/plr*.*  ${PGINSTALL}/share
 #
 export R_HOME_ORIG=${R_HOME}
 export R_HOME=${R_HOME}OLD
+export OLDPATH=$PATH
+export PATH=${R_HOME}/bin${R_ARCH}:$PATH
+which R
+[ ! $? -eq 0 ] && exit 1
 cd ${PLRSOURCE}
 USE_PGXS=1 make installcheck PGUSER=postgres || (cat regression.diffs && false)
 [ ! $? -eq 0 ] && exit 1
 cd -
 export R_HOME=${R_HOME_ORIG}
-
+export PATH=$OLDPATH
 
 
 #
@@ -75,12 +83,16 @@ cp -p ${PGINSTALL}CUR/share${DIRPOSTGRESQL}/extension/plr*.*  ${PGINSTALL}/share
 #
 export R_HOME_ORIG=${R_HOME}
 export R_HOME=${R_HOME}CUR
+export OLDPATH=$PATH
+export PATH=${R_HOME}/bin${R_ARCH}:$PATH
+which R
+[ ! $? -eq 0 ] && exit 1
 cd ${PLRSOURCE}
 USE_PGXS=1 make installcheck PGUSER=postgres || (cat regression.diffs && false)
 [ ! $? -eq 0 ] && exit 1
 cd -
 export R_HOME=${R_HOME_ORIG}
-
+export PATH=$OLDPATH
 
 
 pg_ctl stop -D "${PGDATA}"
