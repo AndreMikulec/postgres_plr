@@ -119,7 +119,7 @@ install:
 
   #
   # fancy build date
-  - sh -login -c "echo $(date '+%Ym%md%d') > $(cygpath ${APPVEYOR_BUILD_FOLDER})/FANCY_BUILD_DAY.txt"
+  - sh -login -c "echo $(date '+%%Ym%%md%%d') > $(cygpath ${APPVEYOR_BUILD_FOLDER})/FANCY_BUILD_DAY.txt"
   - for /f "delims=" %%i in (FANCY_BUILD_DAY.txt) do (set FANCY_BUILD_DAY=%%i)
   - type  FANCY_BUILD_DAY.txt
   - echo %FANCY_BUILD_DAY%
