@@ -111,7 +111,7 @@ install:
   #
   # attempt to get the PG share and lib directories offset
   #
-  - sh -login -c 'if [ ! -d "${PGINSTALL}/share/postgresql" ]; then DIRPOSTGRESQL=""; else DIRPOSTGRESQL="/postgresql"; fi ; echo $DIRPOSTGRESQL > $(cygpath ${APPVEYOR_BUILD_FOLDER})/DIRPOSTGRESQL.txt'
+  - bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/MSYS2POSTGRESQLBIN-DIRPOSTGRESQL.sh"
   - for /f "delims=" %%i in (DIRPOSTGRESQL.txt) do (set DIRPOSTGRESQL=%%i)
   - type  DIRPOSTGRESQL.txt
   - echo %DIRPOSTGRESQL%
@@ -149,10 +149,10 @@ build_script:
   - bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/MSYS2POSTGRESQLBIN-plr-full-build.sh"
 
 test_script:
-  - bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/MSYS2POSTGRESQLBIN-plr-full-test.sh
+  - bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/MSYS2POSTGRESQLBIN-plr-full-test.sh"
 
 on_success:
-  - bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/MSYS2POSTGRESQLBIN-plr-full-on-success.sh
+  - bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/MSYS2POSTGRESQLBIN-plr-full-on-success.sh"
 
 artifacts:
   - path: 'BUILD_MSYS2POSTGRESQLBIN_%APPVEYOR_BUILD_VERSION%_PLR_*.tar.gz'

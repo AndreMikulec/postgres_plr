@@ -34,18 +34,6 @@ pg_config
 
 
 #
-# determine the install location
-#
-if [ ! -d "${PGINSTALL}/share/postgresql" ]
-then
-  DIRPOSTGRESQL=""
-else
-  DIRPOSTGRESQL="/postgresql"
-fi
-
-
-
-#
 # build and install OLD R PLR
 #
 export R_HOME_ORIG=${R_HOME}
