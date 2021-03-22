@@ -79,7 +79,7 @@ which R
 cd ${PLRSOURCE}
 USE_PGXS=1 make
 USE_PGXS=1 make install
-USE_PGXS=1 make installcheck PGUSER=postgres || (cat regression.diffs && false)
+make installcheck PGUSER=postgres || (cat regression.diffs && false)
 [ ! $? -eq 0 ] && pg_ctl stop -D "${PGDATA}" && exit 1
 USE_PGXS=1 make clean
 cd -
@@ -128,7 +128,7 @@ which R
 cd ${PLRSOURCE}
 USE_PGXS=1 make
 USE_PGXS=1 make install
-USE_PGXS=1 make installcheck PGUSER=postgres || (cat regression.diffs && false)
+installcheck PGUSER=postgres || (cat regression.diffs && false)
 [ ! $? -eq 0 ] && pg_ctl stop -D "${PGDATA}" && exit 1
 USE_PGXS=1 make clean
 cd -
