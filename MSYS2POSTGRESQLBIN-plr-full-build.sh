@@ -78,6 +78,17 @@ cd -
 
 
 #
+# save for later testing
+#
+mkdir -p                                                     ${PGINSTALL}OLD
+mkdir -p                                                     ${PGINSTALL}OLD/lib${DIRPOSTGRESQL}
+cp    -r ${PGINSTALL}/lib${DIRPOSTGRESQL}/plr*.*             ${PGINSTALL}OLD/lib${DIRPOSTGRESQL}
+mkdir -p                                                     ${PGINSTALL}OLD/share${DIRPOSTGRESQL}/extension
+cp    -r ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.* ${PGINSTALL}OLD/share${DIRPOSTGRESQL}/extension
+
+
+
+#
 # clean up
 #
 rm -r ${ZIPTMP}
@@ -115,6 +126,18 @@ export ZIP=BUILD_MSYS2POSTGRESQLBIN_${APPVEYOR_BUILD_VERSION}_PLR_${PLR_TAG}_${P
 cd ${ZIPTMP}
 tar -zcvf ${APPVEYOR_BUILD_FOLDER}/${ZIP} *
 cd -
+
+
+
+#
+# save for later testing
+#
+mkdir -p                                                     ${PGINSTALL}CUR
+mkdir -p                                                     ${PGINSTALL}CUR/lib${DIRPOSTGRESQL}
+cp    -r ${PGINSTALL}/lib${DIRPOSTGRESQL}/plr*.*             ${PGINSTALL}CUR/lib${DIRPOSTGRESQL}
+mkdir -p                                                     ${PGINSTALL}CUR/share${DIRPOSTGRESQL}/extension
+cp    -r ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.* ${PGINSTALL}CUR/share${DIRPOSTGRESQL}/extension
+
 
 
 

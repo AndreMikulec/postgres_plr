@@ -31,30 +31,53 @@ winpty -Xallow-non-tty initdb --username=${PGUSER} --pgdata="${PGDATA}" --auth=t
 rm -fr ${PGDATA}
 winpty -Xallow-non-tty initdb --username=${PGUSER} --pgdata="${PGDATA}" --auth=trust --encoding=utf8 --locale=C
 
-pg_ctl start -D "${PGDATA}" -l "${PGLOG}"
-
-
-
-
-#
-# check OLD R PLR (CAN NOT ! - I did not store THIS build anywhere !)
-#
-##
-#
-# skip
-#
+winpty -Xallow-non-tty pg_ctl start -D "${PGDATA}" -l "${PGLOG}"
 
 
 
 #
-# last built plr
+# clean up
+#
+rm    ${PGINSTALL}/lib${DIRPOSTGRESQL}/plr*.*
+rm    ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.*
+
+#
+# check OLD R PLR
+#
+# retrieve to do testing
+#
+cp -p ${PGINSTALL}OLD/lib${DIRPOSTGRESQL}/plr*.*              ${PGINSTALL}/lib${DIRPOSTGRESQL}
+cp -p ${PGINSTALL}OLD/share${DIRPOSTGRESQL}/extension/plr*.*  ${PGINSTALL}/share${DIRPOSTGRESQL}/extension
+#
+export R_HOME_ORIG=${R_HOME}
+export R_HOME=${R_HOME}OLD
+cd ${PLRSOURCE}
+USE_PGXS=1 make installcheck PGUSER=postgres || (cat regression.diffs && false)
+[ ! $? -eq 0 ] && exit 1
+cd -
+export R_HOME=${R_HOME_ORIG}
+
+
+
+#
+# clean up
+#
+rm    ${PGINSTALL}/lib${DIRPOSTGRESQL}/plr*.*
+rm    ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.*
+
 #
 # check CUR R PLR
+#
+# retrieve to do testing
+#
+cp -p ${PGINSTALL}CUR/lib${DIRPOSTGRESQL}/plr*.*              ${PGINSTALL}/lib${DIRPOSTGRESQL}
+cp -p ${PGINSTALL}CUR/share${DIRPOSTGRESQL}/extension/plr*.*  ${PGINSTALL}/share${DIRPOSTGRESQL}/extension
 #
 export R_HOME_ORIG=${R_HOME}
 export R_HOME=${R_HOME}CUR
 cd ${PLRSOURCE}
 USE_PGXS=1 make installcheck PGUSER=postgres || (cat regression.diffs && false)
+[ ! $? -eq 0 ] && exit 1
 cd -
 export R_HOME=${R_HOME_ORIG}
 

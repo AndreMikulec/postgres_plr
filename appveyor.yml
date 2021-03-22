@@ -109,6 +109,14 @@ install:
   - type  PG_VERSION.txt
   - echo %PG_VERSION%
   #
+  # attempt to get the PG share and lib directories offset
+  #
+  - sh -login -c 'if [ ! -d "${PGINSTALL}/share/postgresql" ]; then DIRPOSTGRESQL=""; else DIRPOSTGRESQL="/postgresql"; fi ; echo $DIRPOSTGRESQL > $(cygpath ${APPVEYOR_BUILD_FOLDER})/DIRPOSTGRESQL.txt'
+  - for /f "delims=" %%i in (DIRPOSTGRESQL.txt) do (set DIRPOSTGRESQL=%%i)
+  - type  DIRPOSTGRESQL.txt
+  - echo %DIRPOSTGRESQL%
+
+  #
   ## tool to save artifacts ##
   #
   - sh -login -c "pacman -S --noconfirm --needed msys/tar"
