@@ -31,7 +31,7 @@ winpty -Xallow-non-tty initdb --username=${PGUSER} --pgdata="${PGDATA}" --auth=t
 rm -fr ${PGDATA}
 winpty -Xallow-non-tty initdb --username=${PGUSER} --pgdata="${PGDATA}" --auth=trust --encoding=utf8 --locale=C
 
-winpty -Xallow-non-tty pg_ctl start -D "${PGDATA}" -l "${PGLOG}"
+pg_ctl start -D "${PGDATA}" -l "${PGLOG}"
 
 
 
@@ -83,5 +83,5 @@ export R_HOME=${R_HOME_ORIG}
 
 
 
-winpty -Xallow-non-tty pg_ctl stop -D "${PGDATA}"
+pg_ctl stop -D "${PGDATA}"
 
