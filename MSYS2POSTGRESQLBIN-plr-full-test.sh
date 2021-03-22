@@ -19,6 +19,7 @@ export R_HOME=$(cygpath "${R_HOME}")
 export PGAPPDIR="$HOME"${MSYSTEM_PREFIX}/"postgres/Data"
 #
 export     PGDATA=${PGAPPDIR}
+mkdir -p ${PGDATA}
 export      PGLOG=${PGAPPDIR}/log.txt
 export PGLOCALDIR=${MSYSTEM_PREFIX}/share/postgresql/
 
