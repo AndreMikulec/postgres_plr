@@ -79,7 +79,7 @@ install:
   - echo
   - echo USE_PGXS=1 installcheck PGUSER=postgres || (cat regression.diffs && false)
   - echo
-  - echo make: *** [C:/msys64/mingw64/lib/POSTGR~1/pgxs/src/MAKEFI~1/pgxs.mk:420: installcheck] Error 1
+  - echo make: [C:/msys64/mingw64/lib/POSTGR~1/pgxs/src/MAKEFI~1/pgxs.mk:420: installcheck] Error 1
   - echo create extension plr;
   - echo +ERROR:  could not load library "C:/msys64/mingw64/lib/postgresql/plr.dll": The specified module could not be found.
   - echo ***********************************************************************
