@@ -1,52 +1,5 @@
 
-
-# help: 1 of 3
-# From:	Andrew Dunstan <andrew(at)dunslane(dot)net>
-# To:	PostgreSQL-development <pgsql-hackers(at)postgresql(dot)org>
-# Subject:	msys2
-# Date:	2018-10-07 19:32:44
-# Message-ID:	9f4f22be-f9f1-b350-bc06-521226b87f7a@dunslane.net
-# Views:	Raw Message | Whole Thread | Download mbox | Resend email
-# Thread:
-# 2018-10-07 19:32:44 from Andrew Dunstan <andrew(at)dunslane(dot)net>
-# Lists:	pgsql-hackers
-# https://www.postgresql.org/message-id/9f4f22be-f9f1-b350-bc06-521226b87f7a%40dunslane.net
-
-
-# help: 2 of 3
-# Developing PostgreSQL for Windows, Part 3
-# March 24, 2020/in Eisentraut's PlanetPostgreSQL, PostgreSQL /by Peter Eisentraut
-# https://www.2ndquadrant.com/en/blog/developing-postgresql-windows-part-3/
-# . . .
-# some AppVeyor files
-# From:	Peter Eisentraut <peter(dot)eisentraut(at)2ndquadrant(dot)com>
-# To:	pgsql-hackers <pgsql-hackers(at)postgresql(dot)org>
-# Subject:	some AppVeyor files
-# Date:	2020-03-23 16:05:33
-# Message-ID:	d8e78714-dc77-4a64-783f-e863ba4d951f@2ndquadrant.com
-# Views:	Raw Message | Whole Thread | Download mbox | Resend email
-# Thread:
-# 2020-03-23 16:05:33 from Peter Eisentraut <peter(dot)eisentraut(at)2ndquadrant(dot)com>
-# Lists:	pgsql-hackers
-# https://www.postgresql.org/message-id/d8e78714-dc77-4a64-783f-e863ba4d951f%402ndquadrant.com
-# . . .
-# From a04c2140482645a810bfd682b204bac5194eea8d Mon Sep 17 00:00:00 2001
-# From: Peter Eisentraut <peter@eisentraut.org>
-# Date: Tue, 10 Mar 2020 19:23:46 +0100
-# Subject: [PATCH] AppVeyor configuration for MinGW
-# https://www.postgresql.org/message-id/attachment/109033/0001-AppVeyor-configuration-for-MinGW.patch
-
-
-# help: 3 of 3
-# Package: mingw-w64-x86_64-postgresql
-# Libraries for use with PostgreSQL (mingw-w64)
-# https://github.com/msys2/MINGW-packages/blob/master/mingw-w64-postgresql/PKGBUILD
-# and
-# https://packages.msys2.org/package/mingw-w64-x86_64-postgresql
-
-
-
-version: 0.1.0-{build}-{branch}
+version: 0.1.{build}.{branch}
 
 # Do not build on tags (GitHub and BitBucket)
 skip_tags: true
@@ -54,514 +7,137 @@ skip_tags: true
 # Start builds on tags only (GitHub and BitBucket)
 # skip_non_tags: true
 
-# branches:
-#   only:
-#     - master
-
 # Skipping commits affecting specific files (GitHub only).
 skip_commits:
   files:
     - '**/*.md'
   message: /\[skip ci]/
 
-# Build worker image (VM template)
-image: Visual Studio 2019
-#
-# using default image (Visual Studio 2015)
-#
-# image: Visual Studio 2015 - failed:  (invalid or corrupted database (PGP signature))
-
 # set clone depth
 clone_depth: 1
 
 environment:
-  # save the medium file(s) and big file(s)
+  APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
   APPVEYOR_SAVE_CACHE_ON_ERROR: true
-  BETTERPERL32URL: https://strawberryperl.com/download/5.32.1.1/strawberry-perl-5.32.1.1-32bit-portable.zip
-  BETTERPERL32: strawberry32
-  BETTERPERL64URL: https://strawberryperl.com/download/5.32.1.1/strawberry-perl-5.32.1.1-64bit-portable.zip
-  BETTERPERL64: strawberry64
-  # note, directories are RSVP by PKGBUILD
-  # PKGBUILD _realname=postgres-plr
-  # directories "src" and "pkg/postgres-plr"
-  PGSOURCE:  $(APPVEYOR_BUILD_FOLDER)\postgres
-  PLRSOURCE:  $(APPVEYOR_BUILD_FOLDER)\plr
-  PGINSTALL: $(APPVEYOR_BUILD_FOLDER)\PGINSTALL
+  # PLR_TAG: REL8_4_1
+  # temporary until Dave Cramer pushes tag REL8_4_2
+  PLR_TAG: master
+  PLRSOURCE: $(APPVEYOR_BUILD_FOLDER)\plr
+  R_OLD_VERSION: 3.6.3
+  R_CUR_VERSION: 4.0.3
   R_HOME: $(APPVEYOR_BUILD_FOLDER)\RINSTALL
   ZIPTMP: $(APPVEYOR_BUILD_FOLDER)\ZIPTMP
 
   matrix:
-    - MSYSTEM: MINGW64
-      MINGW_INSTALLS_TODO: mingw64
-      BUILD_CONFIG: Release
-      BETTERPERLURL: $(BETTERPERL64URL)
-      BETTERPERL: $(BETTERPERL64)
-      PG_GIT_BRANCH: REL_13_STABLE
-      # PLR_TAG: REL8_4_1
-      # temporary until Dave Cramer pushes tag REL8_4_2
-      PLR_TAG: master
-      R_ARCH: /x64
-      COMPONENTS_ARCH: ',x64'
-      R_OLD_VERSION: 3.6.3
-      R_CUR_VERSION: 4.0.3
-
-    - MSYSTEM: MINGW64
-      MINGW_INSTALLS_TODO: mingw64
-      BUILD_CONFIG: Debug
-      BETTERPERLURL: $(BETTERPERL64URL)
-      BETTERPERL: $(BETTERPERL64)
-      PG_GIT_BRANCH: REL_13_STABLE
-      # PLR_TAG: REL8_4_1
-      # temporary until Dave Cramer pushes tag REL8_4_2
-      PLR_TAG: master
-      R_ARCH: /x64
-      COMPONENTS_ARCH: ',x64'
-      R_OLD_VERSION: 3.6.3
-      R_CUR_VERSION: 4.0.3
-
     - MSYSTEM: MINGW32
-      MINGW_INSTALLS_TODO: mingw32
+      MSYS2POSTGRESQLBINURLOLD: NONE
+      PGINSTALL: C:/msys64/mingw32
       BUILD_CONFIG: Release
-      BETTERPERLURL: $(BETTERPERL32URL)
-      BETTERPERL: $(BETTERPERL32)
-      PG_GIT_BRANCH: REL_13_STABLE
-      # PLR_TAG: REL8_4_1
-      # temporary until Dave Cramer pushes tag REL8_4_2
-      PLR_TAG: master
       R_ARCH: /i386
       COMPONENTS_ARCH: ',i386'
-      R_OLD_VERSION: 3.6.3
-      R_CUR_VERSION: 4.0.3
+
+    - MSYSTEM: MINGW64
+      MSYS2POSTGRESQLBINURLOLD: NONE
+      PGINSTALL: C:/msys64/mingw64
+      BUILD_CONFIG: Release
+      R_ARCH: /x64
+      COMPONENTS_ARCH: ',x64'
+
+    - MSYSTEM: MINGW64
+      MSYS2POSTGRESQLBINURLOLD: NONE
+      PGINSTALL: C:/msys64/mingw64
+      BUILD_CONFIG: Debug
+      R_ARCH: /x64
+      COMPONENTS_ARCH: ',x64'
 
     - MSYSTEM: MINGW32
-      MINGW_INSTALLS_TODO: mingw32
-      BUILD_CONFIG: Debug
-      BETTERPERLURL: $(BETTERPERL32URL)
-      BETTERPERL: $(BETTERPERL32)
-      PG_GIT_BRANCH: REL_13_STABLE
-      # PLR_TAG: REL8_4_1
-      # temporary until Dave Cramer pushes tag REL8_4_2
-      PLR_TAG: master
+      MSYS2POSTGRESQLBINURLOLD: http://repo.msys2.org/mingw/i686/mingw-w64-i686-postgresql-12.4-1-any.pkg.tar.zst
+      PGINSTALL: C:/msys64/mingw32
+      BUILD_CONFIG: Release
       R_ARCH: /i386
       COMPONENTS_ARCH: ',i386'
-      R_OLD_VERSION: 3.6.3
-      R_CUR_VERSION: 4.0.3
 
+    - MSYSTEM: MINGW64
+      MSYS2POSTGRESQLBINURLOLD: http://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-postgresql-12.4-1-any.pkg.tar.zst
+      PGINSTALL: C:/msys64/mingw64
+      BUILD_CONFIG: Release
+      R_ARCH: /x64
+      COMPONENTS_ARCH: ',x64'
 
-
-# Accessing Windows build worker via Remote Desktop
-# JAN 2021
-# https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
-
-
-
-# collect IP and username for a Microsoft Remote Desktop Connection (rdc)
-init:
-  - "@echo off"
-  - echo BEGIN file appveyor.yml
-  # - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
-
-  # PATH: I am adding to the PATH, to make "pacman" available during the Appveyor "install" stage.
-  # SEE mypaint
-  # https://github.com/mypaint/mypaint/blob/4141a6414b77dcf3e3e62961f99b91d466c6fb52/.appveyor.yml
-  #
-  - PATH C:\msys64\%MSYSTEM%\bin;C:\msys64\usr\bin;C:\msys64\bin;%PATH%
-
-  # Caching data between builds
-  # https://www.appveyor.com/docs/build-cache/
-  #
-  # - set APPVEYOR_CACHE_SKIP_SAVE=true
-  # By default build cache is being saved only for successsful build.
-  # - set APPVEYOR_SAVE_CACHE_ON_ERROR=true
-  # - set APPVEYOR_CACHE_SKIP_RESTORE=true
-
+matrix:
+  allow_failures:
+    - MSYSTEM: MINGW32
+      MSYS2POSTGRESQLBINURLOLD: http://repo.msys2.org/mingw/i686/mingw-w64-i686-postgresql-12.4-1-any.pkg.tar.zst
+    - MSYSTEM: MINGW64
+      MSYS2POSTGRESQLBINURLOLD: http://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-postgresql-12.4-1-any.pkg.tar.zst
 
 install:
-  - set HOME=.
-  - echo BEGIN APPVEYOR INSTALL
-  - echo on
-  - set
+  - PATH C:\msys64\%MSYSTEM%\bin;C:\msys64\usr\bin;C:\msys64\bin;%PATH%
   #
-  # MSYS2_PATH_TYPE=inherit
-  # MSYSTEM=MINGW64
-  # xor
-  # MSYSTEM=MINGW32
+  ## system ##
   #
-  - sh -l -c "export"
-  #
-  # export MINGW_CHOST="x86_64-w64-mingw32"
-  # export MINGW_PACKAGE_PREFIX="mingw-w64-x86_64"
-  # export MINGW_PREFIX="/mingw64"
-  # export MSYS2_PATH_TYPE="inherit"
-  # export MSYSTEM="MINGW64"
-  # export MSYSTEM_CARCH="x86_64"
-  # export MSYSTEM_CHOST="x86_64-w64-mingw32"
-  # export MSYSTEM_PREFIX="/mingw64"
-  #
-  # export MINGW_CHOST="i686-w64-mingw32"
-  # export MINGW_PACKAGE_PREFIX="mingw-w64-i686"
-  # export MINGW_PREFIX="/mingw32"
-  # export MSYS2_PATH_TYPE="inherit"
-  # export MSYSTEM="MINGW32"
-  # export MSYSTEM_CARCH="i686"
-  # export MSYSTEM_CHOST="i686-w64-mingw32"
-  # export MSYSTEM_PREFIX="/mingw32"
-  #
-  - echo %CD%
-  - echo %APPVEYOR_BUILD_FOLDER%
-
-  # says: Build exceeded allowed resource quotas
-  # Builds have not only a disk space limitation bu also an incoming web traffic limitation of 7GB.
-  # Jul 15, 2019
-  # https://help.appveyor.com/discussions/problems/24408-not-enough-disk-sapce
-
-  # MSYS2 updates
-  # SEE mypaint
-  # https://github.com/mypaint/mypaint/blob/4141a6414b77dcf3e3e62961f99b91d466c6fb52/.appveyor.yml
-  #
-  - echo BEGIN MSYS2 UPGRADE
-
   - pacman --noconfirm -Syuu
   - pacman --noconfirm -Suu
-
-  # needed to acquire source code
-  - pacman -S --noconfirm --needed msys/git
-
-  # needed to (eventually) save cache and artifacts
-  - pacman -S --noconfirm --needed msys/tar
-
-  - echo END   MSYS2 UPGRADE
-
-  # acquire source code
   #
-  # works (1) in a branch or (2) at a detached head
-  # git rev-parse --short HEAD
+  ## postgresql ##
   #
+  # this OLD(er) version - may or "may not" work
+  #
+  # How to obtain older versions of packages using MSYS2?
+  # 2015
+  # https://stackoverflow.com/questions/33969803/how-to-obtain-older-versions-of-packages-using-msys2
+  #
+  - if not "%MSYS2POSTGRESQLBINURLOLD%" == "NONE" curl                   -o install.pkg.tar.zst %MSYS2POSTGRESQLBINURLOLD%
+  - if not "%MSYS2POSTGRESQLBINURLOLD%" == "NONE" bash -login -c 'pacman -U install.pkg.tar.zst'
+  #
+  # current-ish version - may be six(6) months after the PG release date or later
+  #
+  - if     "%MSYS2POSTGRESQLBINURLOLD%" == "NONE" sh -login -c "pacman --noconfirm -S --needed ${MINGW_PACKAGE_PREFIX}-postgresql"
+  #
+  ## tool to save artifacts ##
+  #
+  - sh -login -c "pacman -S --noconfirm --needed msys/tar"
+  #
+  ## plr ##
+  #
+  # Because Dave Cramer sometimes does not update the tag, therefore, I can not rely on the tag
+  #                                              branch or tag
   - git clone --depth 1 --single-branch --branch=%PLR_TAG%       https://github.com/postgres-plr/plr.git  %PLRSOURCE%
-  #
-  # Because Dave Cramer sometimes does not update the tag (so I can not rely on the tag)
   #
   - cd %PLRSOURCE%
   - for /f "delims=" %%i in ('git rev-parse --short HEAD') do (set PLR_GIT_COMMIT=%%i)
   - cd %APPVEYOR_BUILD_FOLDER%
   #
-  - git clone --depth 1 --single-branch --branch=%PG_GIT_BRANCH% https://github.com/postgres/postgres.git %PGSOURCE%
-  #
-  # Note, if I am using PG_*.tar.gz from cache, then PG_GIT_COMMIT may not-be-useful and may not-be-used
-  #
-  - cd %PGSOURCE%
-  - for /f "delims=" %%i in ('git rev-parse --short HEAD') do (set  PG_GIT_COMMIT=%%i)
-  - cd %APPVEYOR_BUILD_FOLDER%
-
-  # From
-  # https://github.com/postgres-plr/plpostgres-plr/plr/appveyor.yml
-  #
-  # Curl (curl.exe) has already been added to PATH on build workers.
-  # https://www.appveyor.com/docs/how-to/download-file/
-  #
-
-
-  # Appveyor cache item
-  #
-  - set PG_CURL_REMOTE_FILE=PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz
-
-  #
-  # only -f (-fail) flag will generate an error code
-  #
-  # curl man page
-  
-  # how can I make my .bat file continue after an error
-  # || time /t
-  # 2012
-  # https://superuser.com/questions/527812/how-can-i-make-my-bat-file-continue-after-an-error
-  #
-
-  #
-  # try to get from sourceforge
-  #
-  # - set PG_CURL_REMOTE_URL=https://sourceforge.net/projects/andremikulec/files/%PG_CURL_REMOTE_FILE%
-  #
-  # # TOO SLOW and the file size is only 42MB: BUT it NEVER ARRIVES
-  #
-  # - if not exist %PG_CURL_REMOTE_FILE% curl -o %PG_CURL_REMOTE_FILE% --fail -L -G %PG_CURL_REMOTE_URL% || time /t
-
-  #
-  # try to get from bintray
-  #
-  # Free (MAR 2021)
-  # 2GB Storage
-  # 10GB Transfer/month (So, the free plan would quickly run out of Transfer)
-  # 2,000 CI/CD Minutes/month
-  # https://jfrog.com/pricing/
-  #
-  # web page location (notice the colon(:))
-  # https://dl.bintray.com/andremikulecorg/andremikulecrepo/:MYFILE
-  #
-  # Appveyor upload location (from the Appveyor log)
-  # andremikulecorg/andremikulecrepo/andremikulecpkg/andremikulecvrsn/MYFILE
-  #
-  # curl download location (same as documented: no colon(:))
-  # https://dl.bintray.com/andremikulecorg/andremikulecrepo/MYFILE
-  # 
-  # Andre experienced a VERY GOOD download speed: 3.5 MBytes/second
-  #
-  # - set PG_CURL_REMOTE_URL=https://dl.bintray.com/andremikulecorg/andremikulecrepo/%PG_CURL_REMOTE_FILE%
-  # - if not exist %PG_CURL_REMOTE_FILE% curl -o %PG_CURL_REMOTE_FILE% --fail -L %PG_CURL_REMOTE_URL% || time /t
-
-  #
-  # try to get from Github releases
-  #
-  # Using --fail will make the exit status nonzero on a failed request.
-  # Using --head will avoid downloading the file contents, since we don't need it for this check.
-  # Using --silent will avoid status or errors from being emitted by the check itself.
-  # https://stackoverflow.com/questions/12199059/how-to-check-if-an-url-exists-with-the-shell-and-probably-curl
-  #
-  # We can specifically test for failure with if errorlevel 1,
-  # which returns true if the errorlevel is 1 or greater.
-  # https://www.computerhope.com/jargon/e/erroleve.htm
-  #
-  # Conditionally perform a command.
-  # https://ss64.com/nt/if.html
-
-  - set PG_CURL_REMOTE_URL=https://github.com/AndreMikulec/postgres_plr/releases/download/zzzGithubFakeCache/%PG_CURL_REMOTE_FILE%
-  - |-
-    curl -o THROWAWAYFILE --silent --head --fail -L %PG_CURL_REMOTE_URL%
-    if errorlevel 1 (set PG_CURL_ERROR=true) else (set PG_CURL_ERROR=false)
-    for /f "delims=" %%i in ('echo %PG_CURL_ERROR%') do (set PG_CURL_ERROR=%%i)
-  #
-  # Andre experienced a VERY GOOD download speed: 3.7 MBytes/second
-  #
-  - if "%PG_CURL_ERROR%" == "false" if not exist %PG_CURL_REMOTE_FILE% curl -o %PG_CURL_REMOTE_FILE% --fail -L %PG_CURL_REMOTE_URL% || time /t
-
-  # Appveyor cache items
-  #
-  - if not exist R-%R_OLD_VERSION%-win.exe curl https://cran.r-project.org/bin/windows/base/old/%R_OLD_VERSION%/R-%R_OLD_VERSION%-win.exe -o R-%R_OLD_VERSION%-win.exe
-  - if not exist R-%R_CUR_VERSION%-win.exe curl https://cran.r-project.org/bin/windows/base/old/%R_CUR_VERSION%/R-%R_CUR_VERSION%-win.exe -o R-%R_CUR_VERSION%-win.exe
-
-  # Andre Mikulec experiments and
-  # https://github.com/postgres-plr/plpostgres-plr/plr/appveyor.yml
-  #
-  # NOTE, this is an attempt to do a "R single architecture" install.
-  # HOWEVER, NOW, this is always an "R subarchitecture" install.  When did that change?
-  #
-  # Note: Rscript --vanilla --quiet -e shell('set') | findstr /R "^R_ARCH"
-  # R_ARCH=/x64
-  # R_ARCH=/i386
-  #
-  # place OLD R on disk
+  ## place OLD R on disk ##
   #
   - R-%R_OLD_VERSION%-win.exe /SP- /VERYSILENT /DIR=%R_HOME%OLD /COMPONENTS=main%COMPONENTS_ARCH%,translations /NOICONS /TASKS=
   #
-  # place CUR R on disk
+  ## place CUR R on disk ##
   #
   - R-%R_CUR_VERSION%-win.exe /SP- /VERYSILENT /DIR=%R_HOME%CUR /COMPONENTS=main%COMPONENTS_ARCH%,translations /NOICONS /TASKS=
 
-  - echo BEGIN BETTER PERL
-  # better Perl (PostgreSQL install instructions using Microsoft Visual Studio say to use: ActiveState Perl)
-  # avoid the PostgreSQL compilation error "unable to parse lwlocknames.txt"
-  # because the MSYS2 Perl implemention of regular expressions is poor.
-  #
-  # - appveyor DownloadFile %BETTERPERLURL% -FileName %BETTERPERL%.zip
-  #
-  # Appveyor cache item
-  #
-  - if not exist %BETTERPERL%.zip curl %BETTERPERLURL% -o %BETTERPERL%.zip
-  #
-  - 7z x %BETTERPERL%.zip -o%APPVEYOR_BUILD_FOLDER%\%BETTERPERL%
-
-  #
-  # put the better perl in front of the path
-  #
-  # put pexports at the end of the path
-  #
-  # done LATER in PKGBUILD
-
-  - echo END   APPVEYOR INSTALL
-
-
-
 build_script:
-  - set HOME=.
-  - echo BEGIN APPVEYOR BUILD SCRIPT
-  - bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/full-build.sh"
-  - echo END   APPVEYOR BUILD SCRIPT
+  - bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/MSYS2POSTGRESQLBIN-plr-full-build.sh"
 
+test_script:
+  - bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/MSYS2POSTGRESQLBIN-plr-full-test.sh
 
+on_success:
+  - bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/MSYS2POSTGRESQLBIN-plr-full-on_success.sh
 
 artifacts:
-  #
-  # see the log . . .
-  # if the artifact is deployed to Github (buts seems silently dropped(re-overridden by Github)),
-  #   then some uniqueness may be needed ???
-  #
-  - path: 'BUILD_%APPVEYOR_BUILD_VERSION%_PLR_*.tar.gz'
-    name: "BUILD_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%_%BUILD_CONFIG%"
-
-  - path: 'PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz'
-    name: "PostgreSQL_%PG_GIT_BRANCH%_%MSYSTEM%_tar_gz"
-
-# note, this does not, and can not, distiguish between a file and a folder
-# Caching data between builds
-# https://www.appveyor.com/docs/build-cache/
-#
-# How to check if a file exists from inside a batch file [duplicate]
-# https://stackoverflow.com/questions/4340350/how-to-check-if-a-file-exists-from-inside-a-batch-file
-#
-# How to verify if a file exists in a batch file?
-# https://stackoverflow.com/questions/3022176/how-to-verify-if-a-file-exists-in-a-batch-file
-#
-# “if not exist” command in batch file
-# https://stackoverflow.com/questions/23735282/if-not-exist-command-in-batch-file
-#
-cache:
-  # NOTE, cache (created now), and thus cache (to be restored ASAP),
-  #   is ONLY available on the NEXT build (set of runtime jobs), but the cache IS AVAILABLE per project.
-  #
-  # 1 GB limit per "free" account
-  #
-  # note: cancel a job: SEEMS! to clear the cache, so A BETTER SITUATION (so I do not have to re-build PostgreSQL)
-  #   is to RUN ALL JOBS and let them fail
-  # note: rename a github repository: DOES clear the cache
-  # #
-  # note: appveyor YAML error, seems to clear the cache!?!
-  # #
-  # note: update the remove with a new revision during the build: clears the cache
-  #       and causes many job failures
-  #
-  # note: I may have SET (see the MATRIX above) (so still saves even on error)
-  # environment:
-  #   APPVEYOR_SAVE_CACHE_ON_ERROR: true
-  #
-  # note:
-  # -> nothing (no "by changed file", therefore no invalidation criteria)
-  #
-  # manually delete an [account] project cache
-  # https://www.appveyor.com/docs/build-cache/
-  # https://www.appveyor.com/docs/api/#authentication
-  # https://ci.appveyor.com/api-keys
-  #
-  # NOTE, this identifier is actually the "Project URL slug"
-  # export APPVEYOR_TOKEN="Get from MY page: https://ci.appveyor.com/api-keys"
-  # curl -X "DELETE" -H "Authorization: Bearer $APPVEYOR_TOKEN" https://ci.appveyor.com/api/projects/AndreMikulec/postgres-plr/buildcache
-  #
-  #  85 MB not compressed (3.6.3)
-  - 'R-%R_OLD_VERSION%-win.exe'
-
-  #  85 MB not compressed (4.0.3)
-  - 'R-%R_CUR_VERSION%-win.exe'
-
-  # 153 MB not compressed
-  #   DOES NOT HAVE A SEPARATE 32 and 64 implementation
-  #   Strawberry Perl is ONLY on the image (as of JAN 2021): Visual Studio 2019
-  #   Strawberry Perl 5.30.2 (C:\Strawberry\perl\bin)
-  #   https://www.appveyor.com/docs/windows-images-software/#perl
-  #   #
-  #   Strawberry Perl 5.30.2.1 (2020-03-17)
-  #   https://strawberryperl.com/releases.html
-  - '%BETTERPERL%.zip'
-
-  #
-  # note, in that branch(or tag), this is not the "latest", but this is "good enough"
-  #   2 MB not compressed + 200 MB not compressed (and 48 MB at sourceforge: compressed?)
-  - 'PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz'
+  - path: 'BUILD_MSYS2POSTGRESQLBIN_%APPVEYOR_BUILD_VERSION%_PLR_*.tar.gz'
+    name: "BUILD_MSYS2POSTGRESQLBIN_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%_%BUILD_CONFIG%"
 
 deploy:
-
-  # In Appveyor, if "cached item(s)" is(are) created
-  # in a "previous job" and within this "set of builds"
-  #
-  # Because Appveyor does not make the "new cached item(s)"
-  # available until the NEXT "project build first job"
-  #
-  #   Note, release managment (if desired) may be (more) elegant
-  #   choco install gh
-  #   with the "Github CLI" command line utility:  gh (https://github.com/cli/cli#installation)
-  #
-  - provider: GitHub
-    release: zzzGithubFakeCache
-    auth_token:
-      secure: KzS1DumC2yBg2LGN9x3AemHFOjAdp+rD58rW5aGGpwW4Pfdwdm7AmRpYKprPY8Gs
-    artifact: "PostgreSQL_%PG_GIT_BRANCH%_%MSYSTEM%_tar_gz"
-    draft: false
-    prerelease: false
-    on:
-      # I only have a PostgreSQL Release
-      BUILD_CONFIG: Release
-      # if PG is not in Github release zzzGithubFakeCache, then put PG into Github release zzzGithubFakeCache
-      PG_CURL_ERROR: true
-
-  - provider: FTP
-    host: frs.sourceforge.net
-    protocol: sftp
-    username: andremikulec,andremikulec.u
-    password:
-      secure: 4gk4GyW4O5RooiOyGeRdoA==
-    artifact: "PostgreSQL_%PG_GIT_BRANCH%_%MSYSTEM%_tar_gz"
-    folder: /home/frs/project/andremikulec
-    application:
-    active_mode: false
-    on:
-      # I only have a PostgreSQL Release
-      BUILD_CONFIG: Release
-
   - provider: GitHub
     release: "BUILD_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%"
     auth_token:
       secure: KzS1DumC2yBg2LGN9x3AemHFOjAdp+rD58rW5aGGpwW4Pfdwdm7AmRpYKprPY8Gs
-    artifact: "BUILD_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%_%BUILD_CONFIG%"
+    artifact: "BUILD_MSYS2POSTGRESQLBIN_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%_%BUILD_CONFIG%"
     draft: false
     prerelease: false
-#   on:
-#     branch: master
 
-  - provider: FTP
-    host: frs.sourceforge.net
-    protocol: sftp
-    username: andremikulec,andremikulec.u
-    password:
-      secure: 4gk4GyW4O5RooiOyGeRdoA==
-    artifact: "BUILD_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%_%BUILD_CONFIG%"
-    folder: /home/frs/project/andremikulec
-    application:
-    active_mode: false
-#   on:
-#     branch: master
-
-  #
-  # On May 1, 2021, the sunset will impact all existing Bintray users.
-  # Bintray users will be blocked and will no longer be able to use the Bintray service.
-  # This includes existing software distribution, account administrative access, UI access, and the REST API.
-  #
-  # Into the Sunset on May 1st: Bintray, JCenter, GoCenter, and ChartCenter
-  # February 3, 2021
-  # https://jfrog.com/blog/into-the-sunset-bintray-jcenter-gocenter-and-chartcenter/
-  #
-  #  - provider: BinTray
-  #    username: andremikulec
-  #    subject: andremikulecorg
-  #    repo: andremikulecrepo
-  #    package: andremikulecpkg
-  #    version: andremikulecvrsn
-  #    publish: true
-  #    override: true
-  #    artifact: "PostgreSQL_%PG_GIT_BRANCH%_%MSYSTEM%_tar_gz"
-  #    api_key:
-  #      secure: ySVcVIzcDCvA54BLEfkVX1s04T86IQ93eAS69Fzn6oNNv48K5Nx74rlsAobIXX2a
-  #    on:
-  #    # I only have a PostgreSQL Release
-  #      BUILD_CONFIG: Release
-
-
-
-on_finish:
-#   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
-# # remove locking file from the desktop
-  - echo END   file appveyor.yml
-
-
-
-# I run my jobs manually
-# I do not want my email filling up
 notifications:
   - provider: Email
     on_build_success: false
