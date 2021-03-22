@@ -148,11 +148,9 @@ install:
   #
   - R-%R_CUR_VERSION%-win.exe /SP- /VERYSILENT /DIR=%R_HOME%CUR /COMPONENTS=main%COMPONENTS_ARCH%,translations /NOICONS /TASKS=
 
+# also does the test
 build_script:
   - bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/MSYS2POSTGRESQLBIN-plr-full-build.sh"
-
-test_script:
-  - bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/MSYS2POSTGRESQLBIN-plr-full-test.sh"
 
 on_success:
   - bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/MSYS2POSTGRESQLBIN-plr-full-on-success.sh"
