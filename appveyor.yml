@@ -46,7 +46,7 @@
 
 
 
-version: 0.1.0-{build}-{branch}
+version: 1.0.{build}.{branch}
 
 # Do not build on tags (GitHub and BitBucket)
 skip_tags: true
@@ -64,19 +64,14 @@ skip_commits:
     - '**/*.md'
   message: /\[skip ci]/
 
-# Build worker image (VM template)
-image: Visual Studio 2019
-#
-# using default image (Visual Studio 2015)
-#
-# image: Visual Studio 2015 - failed:  (invalid or corrupted database (PGP signature))
-
 # set clone depth
 clone_depth: 1
 
 environment:
+  APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
   # save the medium file(s) and big file(s)
   APPVEYOR_SAVE_CACHE_ON_ERROR: true
+  PG_MANY_RELEASES: 13_AND_12
   BETTERPERL32URL: https://strawberryperl.com/download/5.32.1.1/strawberry-perl-5.32.1.1-32bit-portable.zip
   BETTERPERL32: strawberry32
   BETTERPERL64URL: https://strawberryperl.com/download/5.32.1.1/strawberry-perl-5.32.1.1-64bit-portable.zip
@@ -85,68 +80,79 @@ environment:
   # PKGBUILD _realname=postgres-plr
   # directories "src" and "pkg/postgres-plr"
   PGSOURCE:  $(APPVEYOR_BUILD_FOLDER)\postgres
-  PLRSOURCE:  $(APPVEYOR_BUILD_FOLDER)\plr
   PGINSTALL: $(APPVEYOR_BUILD_FOLDER)\PGINSTALL
+  # PLR_TAG: REL8_4_1
+  # temporary until Dave Cramer pushes tag REL8_4_2
+  PLR_TAG: master
+  PLR_TAG_SHORT: latest_commit
+  PLRSOURCE:  $(APPVEYOR_BUILD_FOLDER)\plr
   R_HOME: $(APPVEYOR_BUILD_FOLDER)\RINSTALL
+  R_OLD_VERSION: 3.6.3
+  R_OLD_VERSION_SHORT: 3.6
+  R_CUR_VERSION: 4.0.3
+  R_CUR_VERSION_SHORT: 4.0
   ZIPTMP: $(APPVEYOR_BUILD_FOLDER)\ZIPTMP
 
   matrix:
     - MSYSTEM: MINGW64
       MINGW_INSTALLS_TODO: mingw64
-      BUILD_CONFIG: Release
       BETTERPERLURL: $(BETTERPERL64URL)
       BETTERPERL: $(BETTERPERL64)
       PG_GIT_BRANCH: REL_13_STABLE
-      # PLR_TAG: REL8_4_1
-      # temporary until Dave Cramer pushes tag REL8_4_2
-      PLR_TAG: master
+      PG_BUILD_CONFIG: Release
+      PLR_BUILD_CONFIG: Release
       R_ARCH: /x64
       COMPONENTS_ARCH: ',x64'
-      R_OLD_VERSION: 3.6.3
-      R_CUR_VERSION: 4.0.3
 
     - MSYSTEM: MINGW64
       MINGW_INSTALLS_TODO: mingw64
-      BUILD_CONFIG: Debug
       BETTERPERLURL: $(BETTERPERL64URL)
       BETTERPERL: $(BETTERPERL64)
       PG_GIT_BRANCH: REL_13_STABLE
-      # PLR_TAG: REL8_4_1
-      # temporary until Dave Cramer pushes tag REL8_4_2
-      PLR_TAG: master
+      PG_BUILD_CONFIG: Release
+      PLR_BUILD_CONFIG: Debug
       R_ARCH: /x64
       COMPONENTS_ARCH: ',x64'
-      R_OLD_VERSION: 3.6.3
-      R_CUR_VERSION: 4.0.3
+
+    - MSYSTEM: MINGW64
+      MINGW_INSTALLS_TODO: mingw64
+      BETTERPERLURL: $(BETTERPERL64URL)
+      BETTERPERL: $(BETTERPERL64)
+      PG_GIT_BRANCH: REL_13_STABLE
+      PG_BUILD_CONFIG: Debug
+      PLR_BUILD_CONFIG: Debug
+      R_ARCH: /x64
+      COMPONENTS_ARCH: ',x64'
+
+    - MSYSTEM: MINGW64
+      MINGW_INSTALLS_TODO: mingw64
+      BETTERPERLURL: $(BETTERPERL64URL)
+      BETTERPERL: $(BETTERPERL64)
+      PG_GIT_BRANCH: REL_12_STABLE
+      PG_BUILD_CONFIG: Release
+      PLR_BUILD_CONFIG: Release
+      R_ARCH: /x64
+      COMPONENTS_ARCH: ',x64'
 
     - MSYSTEM: MINGW32
       MINGW_INSTALLS_TODO: mingw32
-      BUILD_CONFIG: Release
       BETTERPERLURL: $(BETTERPERL32URL)
       BETTERPERL: $(BETTERPERL32)
       PG_GIT_BRANCH: REL_13_STABLE
-      # PLR_TAG: REL8_4_1
-      # temporary until Dave Cramer pushes tag REL8_4_2
-      PLR_TAG: master
+      PG_BUILD_CONFIG: Release
+      PLR_BUILD_CONFIG: Release
       R_ARCH: /i386
       COMPONENTS_ARCH: ',i386'
-      R_OLD_VERSION: 3.6.3
-      R_CUR_VERSION: 4.0.3
 
     - MSYSTEM: MINGW32
       MINGW_INSTALLS_TODO: mingw32
-      BUILD_CONFIG: Debug
       BETTERPERLURL: $(BETTERPERL32URL)
       BETTERPERL: $(BETTERPERL32)
       PG_GIT_BRANCH: REL_13_STABLE
-      # PLR_TAG: REL8_4_1
-      # temporary until Dave Cramer pushes tag REL8_4_2
-      PLR_TAG: master
+      PG_BUILD_CONFIG: Release
+      PLR_BUILD_CONFIG: Debug
       R_ARCH: /i386
       COMPONENTS_ARCH: ',i386'
-      R_OLD_VERSION: 3.6.3
-      R_CUR_VERSION: 4.0.3
-
 
 
 # Accessing Windows build worker via Remote Desktop
@@ -165,7 +171,7 @@ init:
   # SEE mypaint
   # https://github.com/mypaint/mypaint/blob/4141a6414b77dcf3e3e62961f99b91d466c6fb52/.appveyor.yml
   #
-  - PATH C:\msys64\%MSYSTEM%\bin;C:\msys64\usr\bin;C:\msys64\bin;%PATH%
+  # - PATH C:\msys64\%MSYSTEM%\bin;C:\msys64\usr\bin;C:\msys64\bin;%PATH%
 
   # Caching data between builds
   # https://www.appveyor.com/docs/build-cache/
@@ -187,7 +193,7 @@ install:
   # xor
   # MSYSTEM=MINGW32
   #
-  - sh -l -c "export"
+  - sh --login -c "export"
   #
   # export MINGW_CHOST="x86_64-w64-mingw32"
   # export MINGW_PACKAGE_PREFIX="mingw-w64-x86_64"
@@ -219,10 +225,25 @@ install:
   # SEE mypaint
   # https://github.com/mypaint/mypaint/blob/4141a6414b77dcf3e3e62961f99b91d466c6fb52/.appveyor.yml
   #
-  - echo BEGIN MSYS2 UPGRADE
-
+  #
+  - PATH C:\msys64\%MSYSTEM%\bin;C:\msys64\usr\bin;C:\msys64\bin;%PATH%
+  #
+  ## system ##
+  #
   - pacman --noconfirm -Syuu
   - pacman --noconfirm -Suu
+
+  # fancy build date
+  - bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/MSYS2POSTGRESQLBIN-FANCY-BUILD_DAY.sh"
+  - for /f "delims=" %%i in (FANCY_BUILD_DAY.txt) do (set FANCY_BUILD_DAY=%%i)
+  - type  FANCY_BUILD_DAY.txt
+  - echo %FANCY_BUILD_DAY%
+
+  #
+  # attempt to get the PG version
+  #
+  # (FIRST, I WOULDHAVE TO INSTALL POSTGRESQL)
+  # (CURRENTLY, NOT NEEDED.  I HARDCODE IN THE PG VERSIONS)
 
   # needed to acquire source code
   - pacman -S --noconfirm --needed msys/git
@@ -237,9 +258,10 @@ install:
   # works (1) in a branch or (2) at a detached head
   # git rev-parse --short HEAD
   #
+  # Because Dave Cramer sometimes does not update the tag (so I can not rely on the tag)
+  #
   - git clone --depth 1 --single-branch --branch=%PLR_TAG%       https://github.com/postgres-plr/plr.git  %PLRSOURCE%
   #
-  # Because Dave Cramer sometimes does not update the tag (so I can not rely on the tag)
   #
   - cd %PLRSOURCE%
   - for /f "delims=" %%i in ('git rev-parse --short HEAD') do (set PLR_GIT_COMMIT=%%i)
@@ -261,21 +283,22 @@ install:
   #
 
 
-  # Appveyor cache item
-  #
-  - set PG_CURL_REMOTE_FILE=PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz
+
 
   #
   # only -f (-fail) flag will generate an error code
   #
   # curl man page
-  
+
   # how can I make my .bat file continue after an error
   # || time /t
   # 2012
   # https://superuser.com/questions/527812/how-can-i-make-my-bat-file-continue-after-an-error
   #
 
+  # Appveyor cache item
+  #
+  - set PG_CURL_REMOTE_FILE=PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.%PG_BUILD_CONFIG%.tar.gz
   #
   # try to get from sourceforge
   #
@@ -302,7 +325,7 @@ install:
   #
   # curl download location (same as documented: no colon(:))
   # https://dl.bintray.com/andremikulecorg/andremikulecrepo/MYFILE
-  # 
+  #
   # Andre experienced a VERY GOOD download speed: 3.5 MBytes/second
   #
   # - set PG_CURL_REMOTE_URL=https://dl.bintray.com/andremikulecorg/andremikulecrepo/%PG_CURL_REMOTE_FILE%
@@ -323,7 +346,7 @@ install:
   # Conditionally perform a command.
   # https://ss64.com/nt/if.html
 
-  - set PG_CURL_REMOTE_URL=https://github.com/AndreMikulec/postgres_plr/releases/download/zzzGithubFakeCache/%PG_CURL_REMOTE_FILE%
+  - set PG_CURL_REMOTE_URL=https://github.com/AndreMikulec/postgres_plr/releases/download/ZZGITHUBBUILDCACHE/%PG_CURL_REMOTE_FILE%
   - |-
     curl -o THROWAWAYFILE --silent --head --fail -L %PG_CURL_REMOTE_URL%
     if errorlevel 1 (set PG_CURL_ERROR=true) else (set PG_CURL_ERROR=false)
@@ -383,7 +406,7 @@ install:
 build_script:
   - set HOME=.
   - echo BEGIN APPVEYOR BUILD SCRIPT
-  - bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/full-build.sh"
+  - bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/GITHUBPOSTGRESQLSRC-plr-full-build.sh"
   - echo END   APPVEYOR BUILD SCRIPT
 
 
@@ -394,11 +417,11 @@ artifacts:
   # if the artifact is deployed to Github (buts seems silently dropped(re-overridden by Github)),
   #   then some uniqueness may be needed ???
   #
-  - path: 'BUILD_%APPVEYOR_BUILD_VERSION%_PLR_*.tar.gz'
-    name: "BUILD_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%_%BUILD_CONFIG%"
+  - path: 'PLR_GITHUBPOSTGRESQLSRC_%APPVEYOR_BUILD_VERSION%_%FANCY_BUILD_DAY%_PLR_*.tar.gz'
+    name: "PLR_GITHUBPOSTGRESQLSRC_%APPVEYOR_BUILD_VERSION%_%FANCY_BUILD_DAY%_PLR_%PLR_TAG_SHORT%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_VERSION_SHORT%_%PG_BUILD_CONFIG%_R_%R_CUR_VERSION_SHORT%_AND_R_%R_OLD_VERSION_SHORT%_%PLR_BUILD_CONFIG%"
 
-  - path: 'PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz'
-    name: "PostgreSQL_%PG_GIT_BRANCH%_%MSYSTEM%_tar_gz"
+  - path: 'PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.%PG_BUILD_CONFIG%.tar.gz'
+    name: "PG_%PG_GIT_BRANCH%_%MSYSTEM%_%PG_BUILD_CONFIG%_tar_gz"
 
 # note, this does not, and can not, distiguish between a file and a folder
 # Caching data between builds
@@ -463,7 +486,8 @@ cache:
   #
   # note, in that branch(or tag), this is not the "latest", but this is "good enough"
   #   2 MB not compressed + 200 MB not compressed (and 48 MB at sourceforge: compressed?)
-  - 'PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.tar.gz'
+  - 'PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.%PG_BUILD_CONFIG%.tar.gz'
+
 
 deploy:
 
@@ -478,16 +502,14 @@ deploy:
   #   with the "Github CLI" command line utility:  gh (https://github.com/cli/cli#installation)
   #
   - provider: GitHub
-    release: zzzGithubFakeCache
+    release: ZZGITHUBBUILDCACHE
     auth_token:
       secure: KzS1DumC2yBg2LGN9x3AemHFOjAdp+rD58rW5aGGpwW4Pfdwdm7AmRpYKprPY8Gs
-    artifact: "PostgreSQL_%PG_GIT_BRANCH%_%MSYSTEM%_tar_gz"
+    artifact: "PG_%PG_GIT_BRANCH%_%MSYSTEM%_%PG_BUILD_CONFIG%_tar_gz"
     draft: false
     prerelease: false
     on:
-      # I only have a PostgreSQL Release
-      BUILD_CONFIG: Release
-      # if PG is not in Github release zzzGithubFakeCache, then put PG into Github release zzzGithubFakeCache
+      # if PG is not in Github release ZZGITHUBBUILDCACHE, then put PG into Github release ZZGITHUBBUILDCACHE
       PG_CURL_ERROR: true
 
   - provider: FTP
@@ -496,23 +518,19 @@ deploy:
     username: andremikulec,andremikulec.u
     password:
       secure: 4gk4GyW4O5RooiOyGeRdoA==
-    artifact: "PostgreSQL_%PG_GIT_BRANCH%_%MSYSTEM%_tar_gz"
+    artifact: "PG_%PG_GIT_BRANCH%_%MSYSTEM%_%PG_BUILD_CONFIG%_tar_gz"
     folder: /home/frs/project/andremikulec
     application:
     active_mode: false
-    on:
-      # I only have a PostgreSQL Release
-      BUILD_CONFIG: Release
 
   - provider: GitHub
-    release: "BUILD_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%"
+    release: "PLR_%APPVEYOR_BUILD_VERSION%_%FANCY_BUILD_DAY%_PLR_%PLR_TAG_SHORT%_%PLR_GIT_COMMIT%_PG_%PG_MANY_RELEASES%_R_%R_CUR_VERSION_SHORT%_AND_R_%R_OLD_VERSION_SHORT%"
     auth_token:
       secure: KzS1DumC2yBg2LGN9x3AemHFOjAdp+rD58rW5aGGpwW4Pfdwdm7AmRpYKprPY8Gs
-    artifact: "BUILD_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%_%BUILD_CONFIG%"
+    artifact: "PLR_GITHUBPOSTGRESQLSRC_%APPVEYOR_BUILD_VERSION%_%FANCY_BUILD_DAY%_PLR_%PLR_TAG_SHORT%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_VERSION_SHORT%_%PG_BUILD_CONFIG%_R_%R_CUR_VERSION_SHORT%_AND_R_%R_OLD_VERSION_SHORT%_%PLR_BUILD_CONFIG%"
     draft: false
     prerelease: false
-#   on:
-#     branch: master
+
 
   - provider: FTP
     host: frs.sourceforge.net
@@ -520,12 +538,10 @@ deploy:
     username: andremikulec,andremikulec.u
     password:
       secure: 4gk4GyW4O5RooiOyGeRdoA==
-    artifact: "BUILD_%APPVEYOR_BUILD_VERSION%_PLR_%PLR_TAG%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_GIT_BRANCH%_R_%R_CUR_VERSION%_AND_R_%R_OLD_VERSION%_%BUILD_CONFIG%"
+    artifact: "PLR_GITHUBPOSTGRESQLSRC_%APPVEYOR_BUILD_VERSION%_%FANCY_BUILD_DAY%_PLR_%PLR_TAG_SHORT%_%PLR_GIT_COMMIT%_%MSYSTEM%_PG_%PG_VERSION_SHORT%_%PG_BUILD_CONFIG%_R_%R_CUR_VERSION_SHORT%_AND_R_%R_OLD_VERSION_SHORT%_%PLR_BUILD_CONFIG%"
     folder: /home/frs/project/andremikulec
     application:
     active_mode: false
-#   on:
-#     branch: master
 
   #
   # On May 1, 2021, the sunset will impact all existing Bintray users.
@@ -544,13 +560,12 @@ deploy:
   #    version: andremikulecvrsn
   #    publish: true
   #    override: true
-  #    artifact: "PostgreSQL_%PG_GIT_BRANCH%_%MSYSTEM%_tar_gz"
+  #    artifact: "PG_%PG_GIT_BRANCH%_%MSYSTEM%_%PG_BUILD_CONFIG%_tar_gz"
   #    api_key:
   #      secure: ySVcVIzcDCvA54BLEfkVX1s04T86IQ93eAS69Fzn6oNNv48K5Nx74rlsAobIXX2a
   #    on:
-  #    # I only have a PostgreSQL Release
   #      BUILD_CONFIG: Release
-
+  #      BUILD_CONFIG: Debug
 
 
 on_finish:

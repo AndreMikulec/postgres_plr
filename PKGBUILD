@@ -65,16 +65,16 @@ license=("GPL")
 
 
 
-export PGSOURCE=$(cygpath -u "${PGSOURCE}")
-export PLRSOURCE=$(cygpath -u "${PLRSOURCE}")
-export PGINSTALL=$(cygpath -u "${PGINSTALL}")
-export R_HOME=$(cygpath -u "${R_HOME}")
-export ZIPTMP=$(cygpath -u "${ZIPTMP}")
+export PGSOURCE=$(cygpath "${PGSOURCE}")
+export PLRSOURCE=$(cygpath "${PLRSOURCE}")
+export PGINSTALL=$(cygpath "${PGINSTALL}")
+export R_HOME=$(cygpath "${R_HOME}")
+export ZIPTMP=$(cygpath "${ZIPTMP}")
 
 
 
 # hopefully should not matter, but I feel more compfortable - I had an error - so MATTERS
-export APPVEYOR_BUILD_FOLDER=$(cygpath -u "${APPVEYOR_BUILD_FOLDER}")
+export APPVEYOR_BUILD_FOLDER=$(cygpath "${APPVEYOR_BUILD_FOLDER}")
 
 
 
@@ -85,11 +85,13 @@ export APPVEYOR_BUILD_FOLDER=$(cygpath -u "${APPVEYOR_BUILD_FOLDER}")
 # /mingw32/bin:/usr/local/bin:/usr/bin:/bin:
 
 # but I want Strawberry Perl to be in front, so I will manually do that HERE now
+#
 export PATH=${APPVEYOR_BUILD_FOLDER}/${BETTERPERL}/perl/bin:$PATH
 
 # also, so I need "pexports", that is needed when,
 # I try to use "postresql source code from git" to build postgres
 # ("pexports" is not needed when I use the "downloadable postgrsql" source code)
+#
 export PATH=$PATH:${APPVEYOR_BUILD_FOLDER}/${BETTERPERL}/c/bin
 
 which perl
@@ -137,19 +139,27 @@ package() {
   # configure + build postgres
   #
   cd ${PGSOURCE}
-  if [ ! -f "${APPVEYOR_BUILD_FOLDER}/PG_${PG_GIT_BRANCH}.${MSYSTEM}.configure.build.tar.gz" ]
+  if [ ! -f "${APPVEYOR_BUILD_FOLDER}/PG_${PG_GIT_BRANCH}.${MSYSTEM}.configure.build.${PG_BUILD_CONFIG}.tar.gz" ]
   then
-    ./configure --enable-depend --disable-rpath --prefix=${PGINSTALL}
+    if [ "${PG_BUILD_CONFIG}" == "Release" ]
+    then
+      ./configure --enable-depend --disable-rpath --prefix=${PGINSTALL}
+    fi
+    if [ "${PG_BUILD_CONFIG}" == "Debug" ]
+    then
+      ./configure --enable-depend --disable-rpath --enable-debug --enable-cassert --prefix=${PGINSTALL}
+    fi
+    
     # + build
     make
     loginfo "BEGIN tar CREATION"
     ls -alrt ${APPVEYOR_BUILD_FOLDER}
-    tar -zcf ${APPVEYOR_BUILD_FOLDER}/PG_${PG_GIT_BRANCH}.${MSYSTEM}.configure.build.tar.gz *
-    ls -alrt ${APPVEYOR_BUILD_FOLDER}/PG_${PG_GIT_BRANCH}.${MSYSTEM}.configure.build.tar.gz
+    tar -zcf ${APPVEYOR_BUILD_FOLDER}/PG_${PG_GIT_BRANCH}.${MSYSTEM}.configure.build.${PG_BUILD_CONFIG}.tar.gz *
+    ls -alrt ${APPVEYOR_BUILD_FOLDER}/PG_${PG_GIT_BRANCH}.${MSYSTEM}.configure.build.${PG_BUILD_CONFIG}.tar.gz
     loginfo "END   tar CREATION"
   else
     loginfo "BEGIN tar EXTRACTION"
-    tar -zxf ${APPVEYOR_BUILD_FOLDER}/PG_${PG_GIT_BRANCH}.${MSYSTEM}.configure.build.tar.gz
+    tar -zxf ${APPVEYOR_BUILD_FOLDER}/PG_${PG_GIT_BRANCH}.${MSYSTEM}.configure.build.${PG_BUILD_CONFIG}.tar.gz
     ls -alrt ${PGSOURCE}
     loginfo "END   tar EXTRACTION"
   fi
@@ -183,7 +193,7 @@ package() {
   # copy the PLR code and the correct Makefile to PGSOURCE
   #
   mkdir -p                                      ${PGSOURCE}/contrib/plr
-  cp -r -p ${PLRSOURCE}/*                       ${PGSOURCE}/contrib/plr
+  cp -r    ${PLRSOURCE}/*                       ${PGSOURCE}/contrib/plr
   #
   loginfo "echo END  PKGBUILD package PLR FILES SETUP"
   ls -alrt ${PLRSOURCE}/LICENSE
@@ -195,7 +205,7 @@ package() {
   # Attempt to make a debuggable plr
   #
   cd ${PGSOURCE}/contrib/plr
-  if [ "${BUILD_CONFIG}" = "Debug" ]
+  if [ "${PLR_BUILD_CONFIG}" = "Debug" ]
   then
     echo ""                          >> Makefile
     echo "override CFLAGS += -g -Og" >> Makefile
@@ -229,6 +239,9 @@ package() {
     local DIRPOSTGRESQL="/postgresql"
   fi
   #
+  # CURRENTLY NOT USED
+  # echo $DIRPOSTGRESQL > $(APPVEYOR_BUILD_FOLDER)/DIRPOSTGRESQL.txt
+  #
   ls -alrt ${PGINSTALL}/lib${DIRPOSTGRESQL}/plr*.*
   ls -alrt ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.*
 
@@ -239,13 +252,13 @@ package() {
   # save OLD R PLR in a zip
   #
   mkdir -p                                                     ${ZIPTMP}
-  cp    -p ${PLRSOURCE}/LICENSE                                ${ZIPTMP}/PLR_LICENSE
+  cp       ${PLRSOURCE}/LICENSE                                ${ZIPTMP}/PLR_LICENSE
   mkdir -p                                                     ${ZIPTMP}/lib
-  cp -r -p ${PGINSTALL}/lib${DIRPOSTGRESQL}/plr*.*             ${ZIPTMP}/lib
+  cp -r    ${PGINSTALL}/lib${DIRPOSTGRESQL}/plr*.*             ${ZIPTMP}/lib
   mkdir -p                                                     ${ZIPTMP}/share
-  cp -r -p ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.* ${ZIPTMP}/share
+  cp -r    ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.* ${ZIPTMP}/share
   #
-  export ZIP=BUILD_${APPVEYOR_BUILD_VERSION}_PLR_${PLR_TAG}_${PLR_GIT_COMMIT}_${MSYSTEM}_PG_${PG_GIT_BRANCH}_R_${R_OLD_VERSION}_${BUILD_CONFIG}.tar.gz
+  export ZIP=PLR_GITHUBPOSTGRESQLSRC_${APPVEYOR_BUILD_VERSION}_${FANCY_BUILD_DAY}_PLR_${PLR_TAG_SHORT}_${PLR_GIT_COMMIT}_${MSYSTEM}_PG_${PG_VERSION_SHORT}_${PG_BUILD_CONFIG}_R_${R_OLD_VERSION_SHORT}_${BUILD_CONFIG}.tar.gz
   echo ${ZIP}
   cd ${ZIPTMP}
   loginfo "BEGIN tar CREATION"
@@ -287,6 +300,7 @@ package() {
   else
     local DIRPOSTGRESQL="/postgresql"
   fi
+  echo $DIRPOSTGRESQL > $(APPVEYOR_BUILD_FOLDER)/DIRPOSTGRESQL.txt
   #
   ls -alrt ${PGINSTALL}/lib${DIRPOSTGRESQL}/plr*.*
   ls -alrt ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.*
@@ -298,13 +312,13 @@ package() {
   # save CUR R PLR in a zip
   #
   mkdir -p                                                     ${ZIPTMP}
-  cp    -p ${PLRSOURCE}/LICENSE                                ${ZIPTMP}/PLR_LICENSE
+  cp       ${PLRSOURCE}/LICENSE                                ${ZIPTMP}/PLR_LICENSE
   mkdir -p                                                     ${ZIPTMP}/lib
-  cp -r -p ${PGINSTALL}/lib${DIRPOSTGRESQL}/plr*.*             ${ZIPTMP}/lib
+  cp -r    ${PGINSTALL}/lib${DIRPOSTGRESQL}/plr*.*             ${ZIPTMP}/lib
   mkdir -p                                                     ${ZIPTMP}/share
-  cp -r -p ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.* ${ZIPTMP}/share
+  cp -r    ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.* ${ZIPTMP}/share
   #
-  export ZIP=BUILD_${APPVEYOR_BUILD_VERSION}_PLR_${PLR_TAG}_${PLR_GIT_COMMIT}_${MSYSTEM}_PG_${PG_GIT_BRANCH}_R_${R_CUR_VERSION}_${BUILD_CONFIG}.tar.gz
+  export ZIP=PLR_GITHUBPOSTGRESQLSRC_${APPVEYOR_BUILD_VERSION}_${FANCY_BUILD_DAY}_PLR_${PLR_TAG_SHORT}_${PLR_GIT_COMMIT}_${MSYSTEM}_PG_${PG_VERSION_SHORT}_${PG_BUILD_CONFIG}_R_${R_CUR_VERSION_SHORT}_${BUILD_CONFIG}.tar.gz
   echo ${ZIP}
   cd ${ZIPTMP}
   loginfo "BEGIN tar CREATION"
