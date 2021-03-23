@@ -355,6 +355,7 @@ install:
   #    if errorlevel 1 (set PG_CURL_ERROR=true) else (set PG_CURL_ERROR=false)
   #    for /f "delims=" %%i in ('echo %PG_CURL_ERROR%') do (set PG_CURL_ERROR=%%i)
 
+  - set PG_CURL_REMOTE_URL=https://github.com/AndreMikulec/postgres_plr/releases/download/ZZGITHUBBUILDCACHE/%PG_CURL_REMOTE_FILE%
   - bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/GITHUBPOSTGRESQLSRC-PG-CURL-ERROR.sh
   - for /f "delims=" %%i in (PG_CURL_ERROR.txt) do (set PG_CURL_ERROR=%%i)
   - type  PG_CURL_ERROR.txt
