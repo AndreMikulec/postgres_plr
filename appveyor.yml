@@ -234,7 +234,7 @@ install:
   - pacman --noconfirm -Suu
 
   # fancy build date
-  - bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/MSYS2POSTGRESQLBIN-FANCY-BUILD_DAY.sh"
+  - bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/GITHUBPOSTGRESQLSRC-FANCY-BUILD_DAY.sh"
   - for /f "delims=" %%i in (FANCY_BUILD_DAY.txt) do (set FANCY_BUILD_DAY=%%i)
   - type  FANCY_BUILD_DAY.txt
   - echo %FANCY_BUILD_DAY%
