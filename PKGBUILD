@@ -149,7 +149,7 @@ package() {
     then
       ./configure --enable-depend --disable-rpath --enable-debug --enable-cassert --prefix=${PGINSTALL}
     fi
-    
+
     # + build
     make
     loginfo "BEGIN tar CREATION"
@@ -167,6 +167,16 @@ package() {
   loginfo "END   PKGBUILD package POSTGRESQL CONFIGURE"
   pwd
 
+  #
+  # write the postgres version - I need to install postgres
+  #
+  cd ${PGSOURCE}
+  make install
+  cd -
+  #
+  # currently not used
+  #
+  ${PGINSTALL}/bin/postgres -V | grep -oP '(?<=\) ).*$' > $(APPVEYOR_BUILD_FOLDER)/PG_VERSION.txt
 
 
   loginfo "BEGIN PKGBUILD package 'build' to 'source' links follow"
@@ -258,7 +268,7 @@ package() {
   mkdir -p                                                     ${ZIPTMP}/share
   cp -r    ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.* ${ZIPTMP}/share
   #
-  export ZIP=PLR_GITHUBPOSTGRESQLSRC_${APPVEYOR_BUILD_VERSION}_${FANCY_BUILD_DAY}_PLR_${PLR_TAG_SHORT}_${PLR_GIT_COMMIT}_${MSYSTEM}_PG_${PG_VERSION_SHORT}_${PG_BUILD_CONFIG}_R_${R_OLD_VERSION_SHORT}_${BUILD_CONFIG}.tar.gz
+  export ZIP=PLR_${MSYSTEM}_${PLR_TAG_SHORT}_${PLR_GIT_COMMIT}_${PLR_BUILD_CONFIG}_USING_PG_${PG_VERSION_SHORT}_GITHUBPOSTGRESQLSRC_${PG_BUILD_CONFIG}_LINKED_TO_R_${R_OLD_VERSION_SHORT}_${APPVEYOR_BUILD_VERSION}_${FANCY_BUILD_DAY}.tar.gz
   echo ${ZIP}
   cd ${ZIPTMP}
   loginfo "BEGIN tar CREATION"
@@ -318,7 +328,7 @@ package() {
   mkdir -p                                                     ${ZIPTMP}/share
   cp -r    ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.* ${ZIPTMP}/share
   #
-  export ZIP=PLR_GITHUBPOSTGRESQLSRC_${APPVEYOR_BUILD_VERSION}_${FANCY_BUILD_DAY}_PLR_${PLR_TAG_SHORT}_${PLR_GIT_COMMIT}_${MSYSTEM}_PG_${PG_VERSION_SHORT}_${PG_BUILD_CONFIG}_R_${R_CUR_VERSION_SHORT}_${BUILD_CONFIG}.tar.gz
+  export ZIP=PLR_${MSYSTEM}_${PLR_TAG_SHORT}_${PLR_GIT_COMMIT}_${PLR_BUILD_CONFIG}_USING_PG_${PG_VERSION_SHORT}_GITHUBPOSTGRESQLSRC_${PG_BUILD_CONFIG}_LINKED_TO_R_${R_CUR_VERSION_SHORT}_${APPVEYOR_BUILD_VERSION}_${FANCY_BUILD_DAY}.tar.gz
   echo ${ZIP}
   cd ${ZIPTMP}
   loginfo "BEGIN tar CREATION"
