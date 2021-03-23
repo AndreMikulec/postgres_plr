@@ -171,12 +171,17 @@ package() {
   # write the postgres version - I need to install postgres
   #
   cd ${PGSOURCE}
+  loginfo "BEGIN POSTGRESQL INSTALL"
   make install
+  loginfo "END   POSTGRESQL INSTALL"
   cd -
   #
   # currently not used
   #
+  loginfo "BEGIN POSTGRESQL ACQUIRE VERSION"
+  ${PGINSTALL}/bin/postgres -V
   ${PGINSTALL}/bin/postgres -V | grep -oP '(?<=\) ).*$' > $(APPVEYOR_BUILD_FOLDER)/PG_VERSION.txt
+  loginfo "END   POSTGRESQL ACQUIRE VERSION"
 
 
   loginfo "BEGIN PKGBUILD package 'build' to 'source' links follow"
