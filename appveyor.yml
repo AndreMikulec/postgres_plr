@@ -331,7 +331,7 @@ install:
   # under BIN_THEN_USE_PGXS, always install - later - sometimes - maybe - attempt a downgrade
   #
   # 
-  - if "%PLR_BUILD_METHOD% == "BIN_THEN_USE_PGXS" bash --login -c 'pacman -S --noconfirm ${MINGW_PACKAGE_PREFIX}-postgresql'
+  - if "%PLR_BUILD_METHOD%" == "BIN_THEN_USE_PGXS" bash --login -c 'pacman -S --noconfirm --needed ${MINGW_PACKAGE_PREFIX}-postgresql'
   #
   # this OLD(er) version - may or "may not" work
   #
