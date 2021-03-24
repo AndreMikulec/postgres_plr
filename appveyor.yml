@@ -111,7 +111,6 @@ environment:
   R_CUR_VERSION: 4.0.3
   R_CUR_VERSION_SHORT: 4.0
   ZIPTMP: $(APPVEYOR_BUILD_FOLDER)\ZIPTMP
-  PACMAN_OPTIONS: "-S --noconfirm --needed"
 
   matrix:
 
@@ -332,7 +331,7 @@ install:
   # under BIN_THEN_USE_PGXS, always install - later - sometimes - maybe - attempt a downgrade
   #
   # 
-  - if "%PLR_BUILD_METHOD% == "BIN_THEN_USE_PGXS" pacman %PACMAN_OPTIONS% %MINGW_PACKAGE_PREFIX%-postgresql
+  - if "%PLR_BUILD_METHOD% == "BIN_THEN_USE_PGXS" bash --login -c 'pacman -S --noconfirm ${MINGW_PACKAGE_PREFIX}-postgresql'
   #
   # this OLD(er) version - may or "may not" work
   #
