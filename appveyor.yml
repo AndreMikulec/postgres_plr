@@ -99,13 +99,12 @@ environment:
       MINGW_INSTALLS_TODO: mingw64
       BETTERPERLURL: $(BETTERPERL64URL)
       BETTERPERL: $(BETTERPERL64)
+      PG_ACQUIRE_METHOD: GITHUBPOSTGRESQLSRC
       PG_GIT_BRANCH: REL_13_STABLE
       PG_BUILD_CONFIG: Debug
       PLR_BUILD_CONFIG: Debug
       R_ARCH: /x64
       COMPONENTS_ARCH: ',x64'
-
-
 
 
 # Accessing Windows build worker via Remote Desktop
@@ -376,8 +375,9 @@ build_script:
   - for /f "delims=" %%i in (PG_VERSION_SHORT.txt) do (set PG_VERSION_SHORT=%%i)
   - type  PG_VERSION_SHORT.txt
   - echo %PG_VERSION_SHORT%
-
-
+  #
+  if "%PG_GIT_BRANCH%" == "trunk" set PG_VERSION="trunk"
+  if "%PG_GIT_BRANCH%" == "trunk" set PG_VERSION_SHORT="trunk"
 
 artifacts:
   #
@@ -386,8 +386,8 @@ artifacts:
   #   then some uniqueness may be needed ???
   #
 
-  - path: 'PLR_%MSYSTEM%_%PLR_TAG_SHORT%_%PLR_GIT_COMMIT%_%PLR_BUILD_CONFIG%_USING_PG_%PG_VERSION_SHORT%_GITHUBPOSTGRESQLSRC_%PG_BUILD_CONFIG%_LINKED_TO_R_*_%APPVEYOR_BUILD_VERSION%_%FANCY_BUILD_DAY%.tar.gz'
-    name: "PLR_%MSYSTEM%_%PLR_TAG_SHORT%_%PLR_GIT_COMMIT%_%PLR_BUILD_CONFIG%_USING_PG_%PG_VERSION_SHORT%_GITHUBPOSTGRESQLSRC_%PG_BUILD_CONFIG%_LINKED_TO_R__R_XXX_VERSION_SHORT__%APPVEYOR_BUILD_VERSION%_%FANCY_BUILD_DAY%"
+  - path: 'PLR_*.tar.gz'
+    name: "PLR_tar_gz"
 
   - path: 'PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.%PG_BUILD_CONFIG%.tar.gz'
     name: "PG_%PG_GIT_BRANCH%_%MSYSTEM%_%PG_BUILD_CONFIG%_tar_gz"
@@ -496,7 +496,7 @@ deploy:
     release: "PLR_%APPVEYOR_BUILD_VERSION%_%FANCY_BUILD_DAY%_PLR_%PLR_TAG_SHORT%_%PLR_GIT_COMMIT%_PG_%PG_MANY_RELEASES%_R_%R_CUR_VERSION_SHORT%_AND_R_%R_OLD_VERSION_SHORT%"
     auth_token:
       secure: KzS1DumC2yBg2LGN9x3AemHFOjAdp+rD58rW5aGGpwW4Pfdwdm7AmRpYKprPY8Gs
-    artifact: "PLR_%MSYSTEM%_%PLR_TAG_SHORT%_%PLR_GIT_COMMIT%_%PLR_BUILD_CONFIG%_USING_PG_%PG_VERSION_SHORT%_GITHUBPOSTGRESQLSRC_%PG_BUILD_CONFIG%_LINKED_TO_R__R_XXX_VERSION_SHORT__%APPVEYOR_BUILD_VERSION%_%FANCY_BUILD_DAY%"
+    artifact: "PLR_tar_gz"
     draft: false
     prerelease: false
 
@@ -507,7 +507,7 @@ deploy:
     username: andremikulec,andremikulec.u
     password:
       secure: 4gk4GyW4O5RooiOyGeRdoA==
-    artifact: "PLR_%MSYSTEM%_%PLR_TAG_SHORT%_%PLR_GIT_COMMIT%_%PLR_BUILD_CONFIG%_USING_PG_%PG_VERSION_SHORT%_GITHUBPOSTGRESQLSRC_%PG_BUILD_CONFIG%_LINKED_TO_R__R_XXX_VERSION_SHORT__%APPVEYOR_BUILD_VERSION%_%FANCY_BUILD_DAY%"
+    artifact: "PLR_tar_gz"
     folder: /home/frs/project/andremikulec
     application:
     active_mode: false
