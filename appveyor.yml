@@ -352,7 +352,7 @@ install:
   # be ready, if needed, to build postgres
   #
   # needed by the package to build postgres
-  - pacman -S --noconfirm --needed %MINGW_PACKAGE_PREFIX%-gcc
+  - bash --login -c 'pacman -S --noconfirm --needed ${MINGW_PACKAGE_PREFIX}-gcc'
   - pacman -S --noconfirm --needed msys/{flex,bison,make,perl}
 
   # needed to acquire source code
