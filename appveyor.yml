@@ -71,6 +71,7 @@ environment:
   APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
   # save the medium file(s) and big file(s)
   APPVEYOR_SAVE_CACHE_ON_ERROR: true
+  # used in the Provider release name
   PG_MANY_RELEASES: 13_AND_12
   BETTERPERL32URL: https://strawberryperl.com/download/5.32.1.1/strawberry-perl-5.32.1.1-32bit-portable.zip
   BETTERPERL32: strawberry32
@@ -376,8 +377,15 @@ build_script:
   - type  PG_VERSION_SHORT.txt
   - echo %PG_VERSION_SHORT%
   #
-  if "%PG_GIT_BRANCH%" == "trunk" set PG_VERSION="trunk"
-  if "%PG_GIT_BRANCH%" == "trunk" set PG_VERSION_SHORT="trunk"
+  #
+  # regular expression does not detect characters
+  #
+  - if "%PG_GIT_BRANCH%" == "master" set PG_VERSION="master"
+  - type  PG_VERSION.txt
+  - echo %PG_VERSION%
+  - if "%PG_GIT_BRANCH%" == "master" set PG_VERSION_SHORT="master"
+  - type  PG_VERSION_SHORT.txt
+  - echo %PG_VERSION_SHORT%
 
 artifacts:
   #
