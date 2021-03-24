@@ -45,6 +45,25 @@
 # https://packages.msys2.org/package/mingw-w64-x86_64-postgresql
 
 
+# Note, in PLR_BUILD_METHOD SRC_THEN_PG_COMPILE
+# Place PLR in postgres contrib plr
+# Cd postgres
+# Configure
+# Make
+# Do not install. Later, I installed, to get the PostgreSQL version and to perform tests
+# Cd postgres contrib plr
+# Make
+# Make Install
+# Using the (postgresql) Install location gather the plr files and tar gz them.
+
+# Note, in PLR_BUILD_METHOD BIN_THEN_USE_PGXS
+# Put/Verify pg_config is in the path
+# Keep location APPVEYOR_BUILD_FOLDER plr
+# USE_PGXS=1 make
+# USE_PGXS=1 make install
+# Using the (postgresql) Install location gather the plr files and tar gz them.
+
+
 
 version: 1.0.{build}.{branch}
 
@@ -81,7 +100,6 @@ environment:
   # PKGBUILD _realname=postgres-plr
   # directories "src" and "pkg/postgres-plr"
   PGSOURCE:  $(APPVEYOR_BUILD_FOLDER)\postgres
-  PGINSTALL: $(APPVEYOR_BUILD_FOLDER)\PGINSTALL
   # PLR_TAG: REL8_4_1
   # temporary until Dave Cramer pushes tag REL8_4_2
   PLR_TAG: master
@@ -97,15 +115,123 @@ environment:
   matrix:
 
     - MSYSTEM: MINGW64
-      MINGW_INSTALLS_TODO: mingw64
+      # MINGW_INSTALLS_TODO: mingw64
       BETTERPERLURL: $(BETTERPERL64URL)
       BETTERPERL: $(BETTERPERL64)
-      PG_ACQUIRE_METHOD: GITHUBPOSTGRESQLSRC
+      PLR_BUILD_METHOD: SRC_THEN_PG_COMPILE
       PG_GIT_BRANCH: REL_13_STABLE
+      BIN_THEN_USE_PGXS_URL_OLD: NONE
       PG_BUILD_CONFIG: Debug
       PLR_BUILD_CONFIG: Debug
       R_ARCH: /x64
       COMPONENTS_ARCH: ',x64'
+
+
+    - MSYSTEM: MINGW32
+      # downloaded and/or cached but not used
+      BETTERPERLURL: $(BETTERPERL32URL)
+      # downloaded and/or cached but not used
+      BETTERPERL: $(BETTERPERL32)
+      PLR_BUILD_METHOD: BIN_THEN_USE_PGXS
+      PG_GIT_BRANCH: NONE
+      BIN_THEN_USE_PGXS_URL_OLD: NONE
+      PG_BUILD_CONFIG: Release
+      PLR_BUILD_CONFIG: Release
+      R_ARCH: /i386
+      COMPONENTS_ARCH: ',i386'
+
+    - MSYSTEM: MINGW64
+      # downloaded and/or cached but not used
+      BETTERPERLURL: $(BETTERPERL64URL)
+      # downloaded and/or cached but not used
+      BETTERPERL: $(BETTERPERL64)
+      PLR_BUILD_METHOD: BIN_THEN_USE_PGXS
+      PG_GIT_BRANCH: NONE
+      BIN_THEN_USE_PGXS_URL_OLD: http://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-postgresql-12.4-1-any.pkg.tar.zst
+      PG_BUILD_CONFIG: Release
+      PLR_BUILD_CONFIG: Release
+      R_ARCH: /x64
+      COMPONENTS_ARCH: ',x64'
+
+    - MSYSTEM: MINGW32
+      # downloaded and/or cached but not used
+      BETTERPERLURL: $(BETTERPERL32URL)
+      # downloaded and/or cached but not used
+      BETTERPERL: $(BETTERPERL32)
+      PLR_BUILD_METHOD: BIN_THEN_USE_PGXS
+      PG_GIT_BRANCH: NONE
+      BIN_THEN_USE_PGXS_URL_OLD: http://repo.msys2.org/mingw/i686/mingw-w64-i686-postgresql-12.4-1-any.pkg.tar.zst
+      PG_BUILD_CONFIG: Release
+      PLR_BUILD_CONFIG: Release
+      R_ARCH: /i386
+      COMPONENTS_ARCH: ',i386'
+
+    - MSYSTEM: MINGW64
+      # MINGW_INSTALLS_TODO: mingw64
+      BETTERPERLURL: $(BETTERPERL64URL)
+      BETTERPERL: $(BETTERPERL64)
+      PLR_BUILD_METHOD: SRC_THEN_PG_COMPILE
+      PG_GIT_BRANCH: REL_12_STABLE
+      BIN_THEN_USE_PGXS_URL_OLD: NONE
+      PG_BUILD_CONFIG: Release
+      PLR_BUILD_CONFIG: Release
+      R_ARCH: /x64
+      COMPONENTS_ARCH: ',x64'
+
+    - MSYSTEM: MINGW64
+      # MINGW_INSTALLS_TODO: mingw64
+      BETTERPERLURL: $(BETTERPERL64URL)
+      BETTERPERL: $(BETTERPERL64)
+      PLR_BUILD_METHOD: SRC_THEN_PG_COMPILE
+      PG_GIT_BRANCH: REL_13_STABLE
+      BIN_THEN_USE_PGXS_URL_OLD: NONE
+      PG_BUILD_CONFIG: Release
+      PLR_BUILD_CONFIG: Release
+      R_ARCH: /x64
+      COMPONENTS_ARCH: ',x64'
+
+    - MSYSTEM: MINGW64
+      # MINGW_INSTALLS_TODO: mingw64
+      BETTERPERLURL: $(BETTERPERL64URL)
+      BETTERPERL: $(BETTERPERL64)
+      PLR_BUILD_METHOD: SRC_THEN_PG_COMPILE
+      PG_GIT_BRANCH: REL_13_STABLE
+      BIN_THEN_USE_PGXS_URL_OLD: NONE
+      PG_BUILD_CONFIG: Release
+      PLR_BUILD_CONFIG: Debug
+      R_ARCH: /x64
+      COMPONENTS_ARCH: ',x64'
+
+    - MSYSTEM: MINGW32
+      # MINGW_INSTALLS_TODO: mingw32
+      BETTERPERLURL: $(BETTERPERL32URL)
+      BETTERPERL: $(BETTERPERL32)
+      PLR_BUILD_METHOD: SRC_THEN_PG_COMPILE
+      PG_GIT_BRANCH: REL_13_STABLE
+      BIN_THEN_USE_PGXS_URL_OLD: NONE
+      PG_BUILD_CONFIG: Release
+      PLR_BUILD_CONFIG: Release
+      R_ARCH: /i386
+      COMPONENTS_ARCH: ',i386'
+
+    - MSYSTEM: MINGW32
+      # MINGW_INSTALLS_TODO: mingw32
+      BETTERPERLURL: $(BETTERPERL32URL)
+      BETTERPERL: $(BETTERPERL32)
+      PLR_BUILD_METHOD: SRC_THEN_PG_COMPILE
+      PG_GIT_BRANCH: REL_13_STABLE
+      BIN_THEN_USE_PGXS_URL_OLD: NONE
+      PG_BUILD_CONFIG: Release
+      PLR_BUILD_CONFIG: Debug
+      R_ARCH: /i386
+      COMPONENTS_ARCH: ',i386'
+
+matrix:
+  allow_failures:
+    - MSYSTEM: MINGW32
+      BIN_THEN_USE_PGXS_URL_OLD: http://repo.msys2.org/mingw/i686/mingw-w64-i686-postgresql-12.4-1-any.pkg.tar.zst
+    - MSYSTEM: MINGW64
+      BIN_THEN_USE_PGXS_URL_OLD: http://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-postgresql-12.4-1-any.pkg.tar.zst
 
 
 # Accessing Windows build worker via Remote Desktop
@@ -120,12 +246,6 @@ init:
   - echo BEGIN file appveyor.yml
   # - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
-  # PATH: I am adding to the PATH, to make "pacman" available during the Appveyor "install" stage.
-  # SEE mypaint
-  # https://github.com/mypaint/mypaint/blob/4141a6414b77dcf3e3e62961f99b91d466c6fb52/.appveyor.yml
-  #
-  # - PATH C:\msys64\%MSYSTEM%\bin;C:\msys64\usr\bin;C:\msys64\bin;%PATH%
-
   # Caching data between builds
   # https://www.appveyor.com/docs/build-cache/
   #
@@ -136,9 +256,16 @@ init:
 
 
 install:
-  - set HOME=.
-  - echo BEGIN APPVEYOR INSTALL
+  #
+  - echo ************* skipping tests (ALWAYS getting this error) *************
+  - echo USE_PGXS=1 installcheck PGUSER=postgres || (cat regression.diffs && false)
+  - echo make [C:/msys64/mingw64/lib/POSTGR~1/pgxs/src/MAKEFI~1/pgxs.mk 420 installcheck] Error 1
+  - echo create extension plr;
+  - echo +ERROR:  could not load library "C:/msys64/mingw64/lib/postgresql/plr.dll" The specified module could not be found.
+  - echo ***********************************************************************
+  #
   - echo on
+  - echo BEGIN APPVEYOR INSTALL
   - set
   #
   # MSYS2_PATH_TYPE=inherit
@@ -178,39 +305,68 @@ install:
   # SEE mypaint
   # https://github.com/mypaint/mypaint/blob/4141a6414b77dcf3e3e62961f99b91d466c6fb52/.appveyor.yml
   #
+  # PATH: I am adding to the PATH, to make "pacman" available during the Appveyor "install" stage.
+  # SEE mypaint
+  # https://github.com/mypaint/mypaint/blob/4141a6414b77dcf3e3e62961f99b91d466c6fb52/.appveyor.yml
   #
   - PATH C:\msys64\%MSYSTEM%\bin;C:\msys64\usr\bin;C:\msys64\bin;%PATH%
   #
   ## system ##
   #
+  - echo BEGIN MSYS2 UPGRADE
+
   - pacman --noconfirm -Syuu
   - pacman --noconfirm -Suu
 
   # fancy build date
-  - bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/GITHUBPOSTGRESQLSRC-FANCY-BUILD_DAY.sh"
+  - bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/FANCY_BUILD_DAY.sh"
   - for /f "delims=" %%i in (FANCY_BUILD_DAY.txt) do (set FANCY_BUILD_DAY=%%i)
   - type  FANCY_BUILD_DAY.txt
   - echo %FANCY_BUILD_DAY%
 
   #
-  # attempt to get the PG version
+  # install postgresql
   #
-  # (FIRST, I WOULDHAVE TO INSTALL POSTGRESQL)
-  # (CURRENTLY, NOT NEEDED.  I HARDCODE IN THE PG VERSIONS)
+  # current-ish version - may be release six(6) months after the PG release date - or later
+  # under BIN_THEN_USE_PGXS, always install - later - sometimes - maybe - attempt a downgrade
+  #
+  - if "%PLR_BUILD_METHOD% == "BIN_THEN_USE_PGXS" sh -login -c "pacman --noconfirm -S --needed ${MINGW_PACKAGE_PREFIX}-postgresql"
+  #
+  # this OLD(er) version - may or "may not" work
+  #
+  # How to obtain older versions of packages using MSYS2?
+  # 2015
+  # https://stackoverflow.com/questions/33969803/how-to-obtain-older-versions-of-packages-using-msys2
+  #
+  - if not "%BIN_THEN_USE_PGXS_URL_OLD%" == "NONE" bash -login -c 'curl   -o             install.pkg.tar.zst ${BIN_THEN_USE_PGXS_URL_OLD}'
+  - if not "%BIN_THEN_USE_PGXS_URL_OLD%" == "NONE" bash -login -c 'pacman -U --noconfirm install.pkg.tar.zst'
+  # warning: downgrading package mingw-w64-x86_64-postgresql (13.1-1 => 12.4-1)
+  # resolving dependencies...
+  # looking for conflicting packages..
+
+  #
+  # be ready, if needed, to build postgres
+  #
+  # needed by the package to build postgres
+  - pacman -S --noconfirm --needed ${MINGW_PACKAGE_PREFIX}-gcc
+  - pacman -S --noconfirm --needed msys/{flex,bison,make,perl}
 
   # needed to acquire source code
   - pacman -S --noconfirm --needed msys/git
 
-  # needed to (eventually) save cache and artifacts
+  # needed to (eventually) save cache and save artifacts
   - pacman -S --noconfirm --needed msys/tar
 
   - echo END   MSYS2 UPGRADE
 
   # acquire source code
   #
-  # works (1) in a branch or (2) at a detached head
-  # git rev-parse --short HEAD
+  # --branch=... works (1) in a branch or (2) at a tag (and at a tag creates a "detached head")
+
+  # get the short git commit
   #
+  # git rev-parse --short HEAD
+
   # Because Dave Cramer sometimes does not update the tag (so I can not rely on the tag)
   #
   - git clone --depth 1 --single-branch --branch=%PLR_TAG%       https://github.com/postgres-plr/plr.git  %PLRSOURCE%
@@ -220,13 +376,13 @@ install:
   - for /f "delims=" %%i in ('git rev-parse --short HEAD') do (set PLR_GIT_COMMIT=%%i)
   - cd %APPVEYOR_BUILD_FOLDER%
   #
-  - git clone --depth 1 --single-branch --branch=%PG_GIT_BRANCH% https://github.com/postgres/postgres.git %PGSOURCE%
+  - if not "%PG_GIT_BRANCH%" == "NONE" git clone --depth 1 --single-branch --branch=%PG_GIT_BRANCH% https://github.com/postgres/postgres.git %PGSOURCE%
   #
   # Note, if I am using PG_*.tar.gz from cache, then PG_GIT_COMMIT may not-be-useful and may not-be-used
   #
-  - cd %PGSOURCE%
-  - for /f "delims=" %%i in ('git rev-parse --short HEAD') do (set  PG_GIT_COMMIT=%%i)
-  - cd %APPVEYOR_BUILD_FOLDER%
+  - if not "%PG_GIT_BRANCH%" == "NONE" cd %PGSOURCE%
+  - if not "%PG_GIT_BRANCH%" == "NONE" for /f "delims=" %%i in ('git rev-parse --short HEAD') do (set  PG_GIT_COMMIT=%%i)
+  - if not "%PG_GIT_BRANCH%" == "NONE" cd %APPVEYOR_BUILD_FOLDER%
 
   # From
   # https://github.com/postgres-plr/plpostgres-plr/plr/appveyor.yml
@@ -248,15 +404,15 @@ install:
 
   # Appveyor cache item
   #
-  - set PG_CURL_REMOTE_FILE=PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.%PG_BUILD_CONFIG%.tar.gz
+  # - set GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_FILE=PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.%PG_BUILD_CONFIG%.tar.gz
   #
   # try to get from sourceforge
   #
-  # - set PG_CURL_REMOTE_URL=https://sourceforge.net/projects/andremikulec/files/%PG_CURL_REMOTE_FILE%
+  # - set GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_URL=https://sourceforge.net/projects/andremikulec/files/%GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_FILE%
   #
   # # TOO SLOW and the file size is only 42MB: BUT it NEVER ARRIVES
   #
-  # - if not exist %PG_CURL_REMOTE_FILE% curl -o %PG_CURL_REMOTE_FILE% --fail -L -G %PG_CURL_REMOTE_URL% || time /t
+  # - if not exist %GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_FILE% curl -o %GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_FILE% --fail -L -G %GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_URL% || time /t
 
   #
   # try to get from bintray
@@ -278,8 +434,8 @@ install:
   #
   # Andre experienced a VERY GOOD download speed: 3.5 MBytes/second
   #
-  # - set PG_CURL_REMOTE_URL=https://dl.bintray.com/andremikulecorg/andremikulecrepo/%PG_CURL_REMOTE_FILE%
-  # - if not exist %PG_CURL_REMOTE_FILE% curl -o %PG_CURL_REMOTE_FILE% --fail -L %PG_CURL_REMOTE_URL% || time /t
+  # - set GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_URL=https://dl.bintray.com/andremikulecorg/andremikulecrepo/%GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_FILE%
+  # - if not exist %GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_FILE% curl -o %GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_FILE% --fail -L %GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_URL% || time /t
 
   #
   # try to get from Github releases
@@ -296,24 +452,33 @@ install:
   # Conditionally perform a command.
   # https://ss64.com/nt/if.html
   #
-  # WORKS in git bash but APPVEYOR captures the ERROR  before reaching the "errorlevel 1" line
+  # WORKS in git bash, but APPVEYOR captures the ERROR just before reaching the "errorlevel 1" line
   #
-  # - set PG_CURL_REMOTE_URL=https://github.com/AndreMikulec/postgres_plr/releases/download/ZZGITHUBBUILDCACHE/%PG_CURL_REMOTE_FILE%
+  # - set GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_URL=https://github.com/AndreMikulec/postgres_plr/releases/download/ZZGITHUBBUILDCACHE/%GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_FILE%
   # - |-
-  #    curl -o THROWAWAYFILE --silent --head --fail -L %PG_CURL_REMOTE_URL%
-  #    if errorlevel 1 (set PG_CURL_ERROR=true) else (set PG_CURL_ERROR=false)
-  #    for /f "delims=" %%i in ('echo %PG_CURL_ERROR%') do (set PG_CURL_ERROR=%%i)
+  #    curl -o THROWAWAYFILE --silent --head --fail -L %GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_URL%
+  #    if errorlevel 1 (set GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_ERROR=true) else (set GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_ERROR=false)
+  #    for /f "delims=" %%i in ('echo %GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_ERROR%') do (set GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_ERROR=%%i)
 
-  - set PG_CURL_REMOTE_URL=https://github.com/AndreMikulec/postgres_plr/releases/download/ZZGITHUBBUILDCACHE/%PG_CURL_REMOTE_FILE%
-  - bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/GITHUBPOSTGRESQLSRC-PG-CURL-ERROR.sh
-  - for /f "delims=" %%i in (PG_CURL_ERROR.txt) do (set PG_CURL_ERROR=%%i)
-  - type  PG_CURL_ERROR.txt
-  - echo %PG_CURL_ERROR%
+
+  # SEE FAR BELOW
+  # if GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_ERROR is true
+  # then deploy THE cached or "newly compiled" "PG tar gz" to provider GitHub release ZZGITHUBBUILDCACHE
+  #
+  # default
+  - set GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_ERROR=false
+  #
+  - if "%PLR_BUILD_METHOD% == "SRC_THEN_PG_COMPILE" set GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_FILE=PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.%PG_BUILD_CONFIG%.tar.gz
+  - if "%PLR_BUILD_METHOD% == "SRC_THEN_PG_COMPILE" set GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_URL=https://github.com/AndreMikulec/postgres_plr/releases/download/ZZGITHUBBUILDCACHE/%GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_FILE%
+  - if "%PLR_BUILD_METHOD% == "SRC_THEN_PG_COMPILE" bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_ERROR.sh
+  - if "%PLR_BUILD_METHOD% == "SRC_THEN_PG_COMPILE" for /f "delims=" %%i in (GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_ERROR.txt) do (set GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_ERROR=%%i)
+  - if "%PLR_BUILD_METHOD% == "SRC_THEN_PG_COMPILE" type  GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_ERROR.txt
+  - if "%PLR_BUILD_METHOD% == "SRC_THEN_PG_COMPILE" echo %GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_ERROR%
 
   #
   # Andre experienced a VERY GOOD download speed: 3.7 MBytes/second
   #
-  - if "%PG_CURL_ERROR%" == "false" if not exist %PG_CURL_REMOTE_FILE% curl -o %PG_CURL_REMOTE_FILE% --fail -L %PG_CURL_REMOTE_URL% || time /t
+  - if "%GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_ERROR%" == "false" if not exist %GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_FILE% curl -o %GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_FILE% --fail -L %GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_URL% || time /t
 
   # Appveyor cache items
   #
@@ -353,37 +518,34 @@ install:
 
   #
   # put the better perl in front of the path
-  #
   # put pexports at the end of the path
   #
   # done LATER in PKGBUILD
+
+  # later for ease of administration
+  - if "%PLR_BUILD_METHOD%" == "BIN_THEN_USE_PGXS"   set PGINSTALL=%MINGW_PREFIX%
+  - if "%PLR_BUILD_METHOD%" == "SRC_THEN_PG_COMPILE" set PGINSTALL=/PGINSTALL
 
   - echo END   APPVEYOR INSTALL
 
 
 
 build_script:
-  - set HOME=.
   - echo BEGIN APPVEYOR BUILD SCRIPT
-  - bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/GITHUBPOSTGRESQLSRC-plr-full-build.sh"
-  - for /f "delims=" %%i in (PG_VERSION.txt) do (set PG_VERSION=%%i)
   #
+  - bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/plr-full-build.sh"
+  #
+  - for /f "delims=" %%i in (PG_VERSION.txt) do (set PG_VERSION=%%i)
+  # regular expression does not detect characters
+  - if "%PG_GIT_BRANCH%" == "master" set PG_VERSION="master"
   - type  PG_VERSION.txt
   - echo %PG_VERSION%
   - echo END   APPVEYOR BUILD SCRIPT
   #
   - sh -login -c "cat $(cygpath ${APPVEYOR_BUILD_FOLDER})/PG_VERSION.txt | grep -oP '^\d+' > $(cygpath ${APPVEYOR_BUILD_FOLDER})/PG_VERSION_SHORT.txt"
   - for /f "delims=" %%i in (PG_VERSION_SHORT.txt) do (set PG_VERSION_SHORT=%%i)
-  - type  PG_VERSION_SHORT.txt
-  - echo %PG_VERSION_SHORT%
-  #
-  #
   # regular expression does not detect characters
-  #
-  - if "%PG_GIT_BRANCH%" == "master" set PG_VERSION="master"
-  - type  PG_VERSION.txt
-  - echo %PG_VERSION%
-  - if "%PG_GIT_BRANCH%" == "master" set PG_VERSION_SHORT="master"
+  - if "%PG_GIT_BRANCH%" == "master" set PG_VERSION_SHORT="master
   - type  PG_VERSION_SHORT.txt
   - echo %PG_VERSION_SHORT%
 
@@ -393,7 +555,6 @@ artifacts:
   # if the artifact is deployed to Github (buts seems silently dropped(re-overridden by Github)),
   #   then some uniqueness may be needed ???
   #
-
   - path: 'PLR_*.tar.gz'
     name: "PLR_tar_gz"
 
@@ -458,7 +619,8 @@ cache:
   #   #
   #   Strawberry Perl 5.30.2.1 (2020-03-17)
   #   https://strawberryperl.com/releases.html
-  - '%BETTERPERL%.zip'
+  - strawberry32.zip
+  - strawberry64.zip
 
   #
   # note, in that branch(or tag), this is not the "latest", but this is "good enough"
@@ -487,7 +649,7 @@ deploy:
     prerelease: false
     on:
       # if PG is not in Github release ZZGITHUBBUILDCACHE, then put PG into Github release ZZGITHUBBUILDCACHE
-      PG_CURL_ERROR: true
+      GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_ERROR: true
 
   - provider: FTP
     host: frs.sourceforge.net
