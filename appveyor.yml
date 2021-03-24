@@ -114,19 +114,6 @@ environment:
 
   matrix:
 
-    - MSYSTEM: MINGW32
-      # downloaded and/or cached but not used
-      BETTERPERLURL: $(BETTERPERL32URL)
-      # downloaded and/or cached but not used
-      BETTERPERL: $(BETTERPERL32)
-      PLR_BUILD_METHOD: BIN_THEN_USE_PGXS
-      PG_GIT_BRANCH: NONE
-      BIN_THEN_USE_PGXS_URL_OLD: http://repo.msys2.org/mingw/i686/mingw-w64-i686-postgresql-12.4-1-any.pkg.tar.zst
-      PG_BUILD_CONFIG: Release
-      PLR_BUILD_CONFIG: Release
-      R_ARCH: /i386
-      COMPONENTS_ARCH: ',i386'
-
 
     - MSYSTEM: MINGW64
       # MINGW_INSTALLS_TODO: mingw64
@@ -139,6 +126,20 @@ environment:
       PLR_BUILD_CONFIG: Debug
       R_ARCH: /x64
       COMPONENTS_ARCH: ',x64'
+
+
+    - MSYSTEM: MINGW32
+      # downloaded and/or cached but not used
+      BETTERPERLURL: $(BETTERPERL32URL)
+      # downloaded and/or cached but not used
+      BETTERPERL: $(BETTERPERL32)
+      PLR_BUILD_METHOD: BIN_THEN_USE_PGXS
+      PG_GIT_BRANCH: NONE
+      BIN_THEN_USE_PGXS_URL_OLD: http://repo.msys2.org/mingw/i686/mingw-w64-i686-postgresql-12.4-1-any.pkg.tar.zst
+      PG_BUILD_CONFIG: Release
+      PLR_BUILD_CONFIG: Release
+      R_ARCH: /i386
+      COMPONENTS_ARCH: ',i386'
 
 
     - MSYSTEM: MINGW32
@@ -439,7 +440,7 @@ install:
   # Andre experienced a VERY GOOD download speed: 3.5 MBytes/second
   #
   # - set GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_URL=https://dl.bintray.com/andremikulecorg/andremikulecrepo/%GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_FILE%
-  # - if not exist %GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_FILE% curl -o %GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_FILE% --fail -L %GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_URL% || time /t
+  # - if not exist %GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_FILE% curl -o %GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_FILE% --fail -L %GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_URL%  || time /t
 
   #
   # try to get from Github releases
@@ -467,13 +468,16 @@ install:
 
   # SEE FAR BELOW
   # if GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_ERROR is true
-  # then deploy THE cached or "newly compiled" "PG tar gz" to provider GitHub release ZZGITHUBBUILDCACHE
+  # then deploy the cached or "newly compiled" "PG tar gz" to provider GitHub release ZZGITHUBBUILDCACHE
   #
-  # default
+  # default then will not deploy
   - set GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_ERROR=false
   #
-  - if "%PLR_BUILD_METHOD%" == "SRC_THEN_PG_COMPILE" set GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_FILE=PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.%PG_BUILD_CONFIG%.tar.gz
-  - if "%PLR_BUILD_METHOD%" == "SRC_THEN_PG_COMPILE" set GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_URL=https://github.com/AndreMikulec/postgres_plr/releases/download/ZZGITHUBBUILDCACHE/%GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_FILE%
+  # required(used) in the following file .sh
+  - set GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_FILE=PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.%PG_BUILD_CONFIG%.tar.gz
+  - set GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_URL=https://github.com/AndreMikulec/postgres_plr/releases/download/ZZGITHUBBUILDCACHE/%GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_FILE%
+  #
+  # test if the file exists at the remote location
   - if "%PLR_BUILD_METHOD%" == "SRC_THEN_PG_COMPILE" bash --login -c '$(cygpath ${APPVEYOR_BUILD_FOLDER})/GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_ERROR.sh'
   - if "%PLR_BUILD_METHOD%" == "SRC_THEN_PG_COMPILE" for /f "delims=" %%i in (GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_ERROR.txt) do (set GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_ERROR=%%i)
   - if "%PLR_BUILD_METHOD%" == "SRC_THEN_PG_COMPILE" type  GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_ERROR.txt
@@ -482,12 +486,12 @@ install:
   #
   # Andre experienced a VERY GOOD download speed: 3.7 MBytes/second
   #
-  - if "%GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_ERROR%" == "false" if not exist %GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_FILE% curl -o %GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_FILE% --fail -L %GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_URL% || time /t
+  - if "%PLR_BUILD_METHOD%" == "SRC_THEN_PG_COMPILE" if "%GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_ERROR%" == "false" if not exist %GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_FILE% curl -o %GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_FILE% --fail -L %GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_URL% || time /t
 
   # Appveyor cache items
   #
-  - if not exist R-%R_OLD_VERSION%-win.exe curl https://cran.r-project.org/bin/windows/base/old/%R_OLD_VERSION%/R-%R_OLD_VERSION%-win.exe -o R-%R_OLD_VERSION%-win.exe
-  - if not exist R-%R_CUR_VERSION%-win.exe curl https://cran.r-project.org/bin/windows/base/old/%R_CUR_VERSION%/R-%R_CUR_VERSION%-win.exe -o R-%R_CUR_VERSION%-win.exe
+  - if not exist R-%R_OLD_VERSION%-win.exe curl -o R-%R_OLD_VERSION%-win.exe https://cran.r-project.org/bin/windows/base/old/%R_OLD_VERSION%/R-%R_OLD_VERSION%-win.exe
+  - if not exist R-%R_CUR_VERSION%-win.exe curl -o R-%R_CUR_VERSION%-win.exe https://cran.r-project.org/bin/windows/base/old/%R_CUR_VERSION%/R-%R_CUR_VERSION%-win.exe
 
   # Andre Mikulec experiments and
   # https://github.com/postgres-plr/plpostgres-plr/plr/appveyor.yml
