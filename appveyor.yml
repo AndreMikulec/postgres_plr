@@ -114,6 +114,18 @@ environment:
 
   matrix:
 
+    - MSYSTEM: MINGW32
+      # MINGW_INSTALLS_TODO: mingw32
+      BETTERPERLURL: $(BETTERPERL32URL)
+      BETTERPERL: $(BETTERPERL32)
+      PLR_BUILD_METHOD: SRC_THEN_PG_COMPILE
+      PG_GIT_BRANCH: REL_13_STABLE
+      BIN_THEN_USE_PGXS_URL_OLD: NONE
+      PG_BUILD_CONFIG: Release
+      PLR_BUILD_CONFIG: Release
+      R_ARCH: /i386
+      COMPONENTS_ARCH: ',i386'
+
 
     - MSYSTEM: MINGW64
       # MINGW_INSTALLS_TODO: mingw64
@@ -206,17 +218,7 @@ environment:
       R_ARCH: /x64
       COMPONENTS_ARCH: ',x64'
 
-    - MSYSTEM: MINGW32
-      # MINGW_INSTALLS_TODO: mingw32
-      BETTERPERLURL: $(BETTERPERL32URL)
-      BETTERPERL: $(BETTERPERL32)
-      PLR_BUILD_METHOD: SRC_THEN_PG_COMPILE
-      PG_GIT_BRANCH: REL_13_STABLE
-      BIN_THEN_USE_PGXS_URL_OLD: NONE
-      PG_BUILD_CONFIG: Release
-      PLR_BUILD_CONFIG: Release
-      R_ARCH: /i386
-      COMPONENTS_ARCH: ',i386'
+
 
     - MSYSTEM: MINGW32
       # MINGW_INSTALLS_TODO: mingw32
@@ -335,6 +337,7 @@ install:
   # under BIN_THEN_USE_PGXS, always install - later - sometimes - maybe - attempt a downgrade
   #
   # 
+  # If I must pass an environment variable, then this form may do it
   - if "%PLR_BUILD_METHOD%" == "BIN_THEN_USE_PGXS" bash --login -c 'pacman -S --noconfirm --needed ${MINGW_PACKAGE_PREFIX}-postgresql'
   #
   # this OLD(er) version - may or "may not" work
@@ -468,12 +471,13 @@ install:
 
   # SEE FAR BELOW
   # if GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_ERROR is true
-  # then deploy the cached or "newly compiled" "PG tar gz" to provider GitHub release ZZGITHUBBUILDCACHE
+  # then (eventually) deploy the Appveyor cached or "newly compiled" (in plr-full-build.sh) file "PG tar gz" 
+  # to provider GitHub release ZZGITHUBBUILDCACHE
   #
   # default then will not deploy
   - set GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_ERROR=false
   #
-  # required(used) in the following file .sh
+  # required(used) in the following file GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_ERROR.sh
   - set GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_FILE=PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.%PG_BUILD_CONFIG%.tar.gz
   - set GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_URL=https://github.com/AndreMikulec/postgres_plr/releases/download/ZZGITHUBBUILDCACHE/%GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_FILE%
   #
@@ -482,10 +486,11 @@ install:
   - if "%PLR_BUILD_METHOD%" == "SRC_THEN_PG_COMPILE" for /f "delims=" %%i in (GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_ERROR.txt) do (set GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_ERROR=%%i)
   - if "%PLR_BUILD_METHOD%" == "SRC_THEN_PG_COMPILE" type  GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_ERROR.txt
   - if "%PLR_BUILD_METHOD%" == "SRC_THEN_PG_COMPILE" echo %GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_ERROR%
-
+  #
   #
   # Andre experienced a VERY GOOD download speed: 3.7 MBytes/second
   #
+  # actually perform the download
   - if "%PLR_BUILD_METHOD%" == "SRC_THEN_PG_COMPILE" if "%GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_ERROR%" == "false" if not exist %GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_FILE% curl -o %GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_FILE% --fail -L %GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_URL% || time /t
 
   # Appveyor cache items
