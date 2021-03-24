@@ -180,7 +180,7 @@ package() {
   #
   loginfo "BEGIN POSTGRESQL ACQUIRE VERSION"
   ${PGINSTALL}/bin/postgres -V
-  ${PGINSTALL}/bin/postgres -V | grep -oP '(?<=\) ).*$' > $(APPVEYOR_BUILD_FOLDER)/PG_VERSION.txt
+  ${PGINSTALL}/bin/postgres -V | grep -oP '(?<=\) ).*$' > ${APPVEYOR_BUILD_FOLDER}/PG_VERSION.txt
   loginfo "END   POSTGRESQL ACQUIRE VERSION"
 
 
