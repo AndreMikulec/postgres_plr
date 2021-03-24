@@ -114,6 +114,20 @@ environment:
 
   matrix:
 
+    - MSYSTEM: MINGW32
+      # downloaded and/or cached but not used
+      BETTERPERLURL: $(BETTERPERL32URL)
+      # downloaded and/or cached but not used
+      BETTERPERL: $(BETTERPERL32)
+      PLR_BUILD_METHOD: BIN_THEN_USE_PGXS
+      PG_GIT_BRANCH: NONE
+      BIN_THEN_USE_PGXS_URL_OLD: http://repo.msys2.org/mingw/i686/mingw-w64-i686-postgresql-12.4-1-any.pkg.tar.zst
+      PG_BUILD_CONFIG: Release
+      PLR_BUILD_CONFIG: Release
+      R_ARCH: /i386
+      COMPONENTS_ARCH: ',i386'
+
+
     - MSYSTEM: MINGW64
       # MINGW_INSTALLS_TODO: mingw64
       BETTERPERLURL: $(BETTERPERL64URL)
@@ -153,18 +167,7 @@ environment:
       R_ARCH: /x64
       COMPONENTS_ARCH: ',x64'
 
-    - MSYSTEM: MINGW32
-      # downloaded and/or cached but not used
-      BETTERPERLURL: $(BETTERPERL32URL)
-      # downloaded and/or cached but not used
-      BETTERPERL: $(BETTERPERL32)
-      PLR_BUILD_METHOD: BIN_THEN_USE_PGXS
-      PG_GIT_BRANCH: NONE
-      BIN_THEN_USE_PGXS_URL_OLD: http://repo.msys2.org/mingw/i686/mingw-w64-i686-postgresql-12.4-1-any.pkg.tar.zst
-      PG_BUILD_CONFIG: Release
-      PLR_BUILD_CONFIG: Release
-      R_ARCH: /i386
-      COMPONENTS_ARCH: ',i386'
+
 
     - MSYSTEM: MINGW64
       # MINGW_INSTALLS_TODO: mingw64
@@ -349,7 +352,7 @@ install:
   # be ready, if needed, to build postgres
   #
   # needed by the package to build postgres
-  - pacman -S --noconfirm --needed ${MINGW_PACKAGE_PREFIX}-gcc
+  - pacman -S --noconfirm --needed %MINGW_PACKAGE_PREFIX%-gcc
   - pacman -S --noconfirm --needed msys/{flex,bison,make,perl}
 
   # needed to acquire source code
