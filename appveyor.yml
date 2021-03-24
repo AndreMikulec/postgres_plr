@@ -257,12 +257,12 @@ init:
 
 install:
   #
-  - echo ************* skipping tests (ALWAYS getting this error) *************
-  - echo USE_PGXS=1 installcheck PGUSER=postgres || (cat regression.diffs && false)
-  - echo make [C:/msys64/mingw64/lib/POSTGR~1/pgxs/src/MAKEFI~1/pgxs.mk 420 installcheck] Error 1
-  - echo create extension plr;
-  - echo +ERROR:  could not load library "C:/msys64/mingw64/lib/postgresql/plr.dll" The specified module could not be found.
-  - echo ***********************************************************************
+  - rem ************* skipping tests (ALWAYS getting this error) *************
+  - rem USE_PGXS=1 installcheck PGUSER=postgres || (cat regression.diffs && false)
+  - rem make [C:/msys64/mingw64/lib/POSTGR~1/pgxs/src/MAKEFI~1/pgxs.mk 420 installcheck] Error 1
+  - rem create extension plr;
+  - rem +ERROR:  could not load library "C:/msys64/mingw64/lib/postgresql/plr.dll" The specified module could not be found.
+  - rem ***********************************************************************
   #
   - echo on
   - echo BEGIN APPVEYOR INSTALL
@@ -273,7 +273,7 @@ install:
   # xor
   # MSYSTEM=MINGW32
   #
-  - sh --login -c "export"
+  - bash --login -c "export"
   #
   # export MINGW_CHOST="x86_64-w64-mingw32"
   # export MINGW_PACKAGE_PREFIX="mingw-w64-x86_64"
@@ -330,7 +330,7 @@ install:
   # current-ish version - may be release six(6) months after the PG release date - or later
   # under BIN_THEN_USE_PGXS, always install - later - sometimes - maybe - attempt a downgrade
   #
-  - if "%PLR_BUILD_METHOD% == "BIN_THEN_USE_PGXS" sh -login -c "pacman --noconfirm -S --needed ${MINGW_PACKAGE_PREFIX}-postgresql"
+  - if "%PLR_BUILD_METHOD% == "BIN_THEN_USE_PGXS" bash -login -c "pacman -S --noconfirm --needed ${MINGW_PACKAGE_PREFIX}-postgresql"
   #
   # this OLD(er) version - may or "may not" work
   #
@@ -542,7 +542,7 @@ build_script:
   - echo %PG_VERSION%
   - echo END   APPVEYOR BUILD SCRIPT
   #
-  - sh -login -c "cat $(cygpath ${APPVEYOR_BUILD_FOLDER})/PG_VERSION.txt | grep -oP '^\d+' > $(cygpath ${APPVEYOR_BUILD_FOLDER})/PG_VERSION_SHORT.txt"
+  - bash --login -c "cat $(cygpath ${APPVEYOR_BUILD_FOLDER})/PG_VERSION.txt | grep -oP '^\d+' > $(cygpath ${APPVEYOR_BUILD_FOLDER})/PG_VERSION_SHORT.txt"
   - for /f "delims=" %%i in (PG_VERSION_SHORT.txt) do (set PG_VERSION_SHORT=%%i)
   # regular expression does not detect characters
   - if "%PG_GIT_BRANCH%" == "master" set PG_VERSION_SHORT="master
