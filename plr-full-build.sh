@@ -86,7 +86,7 @@ export PATH=$PATH:${APPVEYOR_BUILD_FOLDER}/${BETTERPERL}/c/bin
 which pexports
 
 
-if [ "${PGINSTALL}" == "MINGW_PREFIX_DEFAULT" }
+if [ "${PGINSTALL}" == "MINGW_PREFIX_DEFAULT" ]
 then
   export PGINSTALL=${MINGW_PREFIX}
 fi
