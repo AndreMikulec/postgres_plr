@@ -118,8 +118,8 @@ environment:
       #
       # perl : BIN_THEN_USE_PGXS and SRC_THEN_PG_COMPILE(but only used in)
       # PG_GIT_BRANCH(branch name or tag name): SRC_THEN_PG_COMPILE, otherwise NONE
-      # BIN_THEN_USE_PGXS_URL_OLD: BIN_THEN_USE_PGXS (tries the OLD version of PG), otherwise NONE
-      # PG_BUILD_CONFIG: SRC_THEN_PG_COMPILE(Release/Debug), otherwise Release 
+      # BIN_THEN_USE_PGXS_URL_OLD: BIN_THEN_USE_PGXS (tries the OLD PG binary), otherwise NONE
+      # PG_BUILD_CONFIG: SRC_THEN_PG_COMPILE(Release/Debug), otherwise Release
       # PLR_BUILD_CONFIG(Release/Debug): BIN_THEN_USE_PGXS and SRC_THEN_PG_COMPILE
       # R_ARCH(/i386,/x64): BIN_THEN_USE_PGXS and SRC_THEN_PG_COMPILE
       # COMPONENTS_ARCH(',i386',',x64'): BIN_THEN_USE_PGXS and SRC_THEN_PG_COMPILE
@@ -356,7 +356,7 @@ install:
   # current-ish version - may be release six(6) months after the PG release date - or later
   # under BIN_THEN_USE_PGXS, always install - later - sometimes - maybe - attempt a downgrade
   #
-  # 
+  #
   # If I must pass an environment variable, then this form may do it
   # also the parent(-) shell does not have the MINGW/MSYS2 variables
   - if "%PLR_BUILD_METHOD%" == "BIN_THEN_USE_PGXS" bash --login -c 'pacman -S --noconfirm --needed ${MINGW_PACKAGE_PREFIX}-postgresql'
@@ -492,7 +492,7 @@ install:
 
   # SEE FAR BELOW
   # if GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_ERROR is true
-  # then (eventually) deploy the Appveyor cached or "newly compiled" (in plr-full-build.sh) file "PG tar gz" 
+  # then (eventually) deploy the Appveyor cached or "newly compiled" (in plr-full-build.sh) file "PG tar gz"
   # to provider GitHub release ZZGITHUBBUILDCACHE
   #
   # default then will not deploy
