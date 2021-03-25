@@ -348,6 +348,7 @@ install:
   #
   # 
   # If I must pass an environment variable, then this form may do it
+  # also the parent(-) shell does not have the MINGW/MSYS2 variables
   - if "%PLR_BUILD_METHOD%" == "BIN_THEN_USE_PGXS" bash --login -c 'pacman -S --noconfirm --needed ${MINGW_PACKAGE_PREFIX}-postgresql'
   #
   # this OLD(er) version - may or "may not" work
@@ -547,8 +548,8 @@ install:
 
   # later for ease of administration
   #
-  - if "%PLR_BUILD_METHOD%" == "BIN_THEN_USE_PGXS"   set PGINSTALL=%MINGW_PREFIX%
-  - if "%PLR_BUILD_METHOD%" == "SRC_THEN_PG_COMPILE" set PGINSTALL=/PGINSTALL
+  - if "%PLR_BUILD_METHOD%" == "BIN_THEN_USE_PGXS"   set PGINSTALL="MINGW_PREFIX_DEFAULT"
+  - if "%PLR_BUILD_METHOD%" == "SRC_THEN_PG_COMPILE" set PGINSTALL="/PGINSTALL"
 
   - echo END   APPVEYOR INSTALL
 

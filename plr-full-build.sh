@@ -56,9 +56,10 @@ export APPVEYOR_BUILD_FOLDER=$(cygpath "${APPVEYOR_BUILD_FOLDER}")
 
 
 
-# I am here.  I want to stay here.
-echo ${APPVEYOR_BUILD_FOLDER}
+# I am here.  
 pwd
+# I want to be here.
+echo ${APPVEYOR_BUILD_FOLDER}
 cd "$(dirname "$0")"
 pwd
 
@@ -69,7 +70,7 @@ pwd
 # /mingw64/bin:/usr/local/bin:/usr/bin:/bin:
 # or
 # /mingw32/bin:/usr/local/bin:/usr/bin:/bin:
-
+#
 # but I want Strawberry Perl to be in front, so I will manually do that HERE now
 #
 export PATH=${APPVEYOR_BUILD_FOLDER}/${BETTERPERL}/perl/bin:$PATH
@@ -84,7 +85,13 @@ export PATH=$PATH:${APPVEYOR_BUILD_FOLDER}/${BETTERPERL}/c/bin
 
 which pexports
 
-if [ ! "${PGINSTALL}" == "{MINGW_PREFIX}" ]
+
+if [ "${PGINSTALL} == "MINGW_PREFIX_DEFAULT" }
+then
+  export PGINSTALL=${MINGW_PREFIX}
+fi
+#
+if [ ! "${PGINSTALL}" == "${MINGW_PREFIX}" ]
 then
   # I am probably going to build from source
   # A "build from source" is "out of" the pacman/PKGBUILD system
@@ -94,7 +101,7 @@ fi
 
 
 
-
+# see what I have
 export
 
 
