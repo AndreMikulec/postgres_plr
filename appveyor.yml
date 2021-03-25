@@ -114,6 +114,16 @@ environment:
 
   matrix:
 
+      # combinations available: PLR_BUILD_METHOD; BIN_THEN_USE_PGXS and SRC_THEN_PG_COMPILE
+      #
+      # perl : BIN_THEN_USE_PGXS and SRC_THEN_PG_COMPILE(but only used in)
+      # PG_GIT_BRANCH(branch name or tag name): SRC_THEN_PG_COMPILE, otherwise NONE
+      # BIN_THEN_USE_PGXS_URL_OLD: BIN_THEN_USE_PGXS (tries the OLD version of PG), otherwise NONE
+      # PG_BUILD_CONFIG: SRC_THEN_PG_COMPILE(Release/Debug), otherwise Release 
+      # PLR_BUILD_CONFIG(Release/Debug): BIN_THEN_USE_PGXS and SRC_THEN_PG_COMPILE
+      # R_ARCH(/i386,/x64): BIN_THEN_USE_PGXS and SRC_THEN_PG_COMPILE
+      # COMPONENTS_ARCH(',i386',',x64'): BIN_THEN_USE_PGXS and SRC_THEN_PG_COMPILE
+
     - MSYSTEM: MINGW32
       # downloaded and/or cached but not used
       BETTERPERLURL: $(BETTERPERL32URL)
@@ -558,21 +568,11 @@ install:
 build_script:
   - echo BEGIN APPVEYOR BUILD SCRIPT
   #
+  # # bash --login -c --- NOTE if embedded single quote, then on the outside use a "double quote"
+  #
   - bash --login -c '$(cygpath ${APPVEYOR_BUILD_FOLDER})/plr-full-build.sh'
-  #
   - for /f "delims=" %%i in (PG_VERSION.txt) do (set PG_VERSION=%%i)
-  # regular expression does not detect characters
-  - if "%PG_GIT_BRANCH%" == "master" set PG_VERSION="master"
-  - type  PG_VERSION.txt
-  - echo %PG_VERSION%
-  #
-  # if embedded single quote, then on the outside use a "double quote"
-  - bash --login -c "cat $(cygpath ${APPVEYOR_BUILD_FOLDER})/PG_VERSION.txt | grep -oP '^\d+' > $(cygpath ${APPVEYOR_BUILD_FOLDER})/PG_VERSION_SHORT.txt"
   - for /f "delims=" %%i in (PG_VERSION_SHORT.txt) do (set PG_VERSION_SHORT=%%i)
-  # regular expression does not detect characters
-  - if "%PG_GIT_BRANCH%" == "master" set PG_VERSION_SHORT="master
-  - type  PG_VERSION_SHORT.txt
-  - echo %PG_VERSION_SHORT%
   #
   - echo END   APPVEYOR BUILD SCRIPT
 
@@ -691,7 +691,7 @@ deploy:
     active_mode: false
 
   - provider: GitHub
-    release: "PLR_%APPVEYOR_BUILD_VERSION%_%FANCY_BUILD_DAY%_%PLR_TAG_SHORT%_%PLR_GIT_COMMIT%_PG_%PG_MANY_RELEASES%_R_%R_CUR_VERSION_SHORT%_AND_R_%R_OLD_VERSION_SHORT%"
+    release: "PLR_%PLR_TAG_SHORT%_%PLR_GIT_COMMIT%_PG_%PG_MANY_RELEASES%_R_%R_CUR_VERSION_SHORT%_AND_R_%R_OLD_VERSION_SHORT%_CI_BUILD_VERSION_%APPVEYOR_BUILD_VERSION%_%FANCY_BUILD_DAY%"
     auth_token:
       secure: KzS1DumC2yBg2LGN9x3AemHFOjAdp+rD58rW5aGGpwW4Pfdwdm7AmRpYKprPY8Gs
     artifact: "PLR_tar_gz"

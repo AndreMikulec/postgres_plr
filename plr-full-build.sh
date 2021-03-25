@@ -200,7 +200,25 @@ fi
 loginfo "BEGIN POSTGRESQL ACQUIRE INFO"
 pg_config
 postgres -V
-postgres -V | grep -oP '(?<=\) ).*$' > ${APPVEYOR_BUILD_FOLDER}/PG_VERSION.txt
+postgres -V | grep -oP '(?<=\) ).*$'
+export PG_VERSION=$(postgres -V | grep -oP '(?<=\) ).*$')
+echo   PG_VERSION: ${PG_VERSION}
+echo ${PG_VERSION} > ${APPVEYOR_BUILD_FOLDER}/PG_VERSION.txt
+
+echo  ${PG_VERSION} | grep -oP '^\d+'
+export PGVERSION_SHORT=$(echo ${PG_VERSION} | grep -oP '^\d+')
+echo  PG_VERSION_SHORT: ${PG_VERSION_SHORT}
+echo ${PGVERSION_SHORT} > ${APPVEYOR_BUILD_FOLDER}/PG_VERSION_SHORT.txt
+
+if [ "${PG_GIT_BRANCH}" == "master" ]
+then
+  export PG_VERSION=master
+  export PG_VERSION_SHORT=master
+fi
+#
+echo ${PG_VERSION}
+echo ${PG_VERSION_SHORT}
+
 loginfo "END   POSTGRESQL ACQUIRE INFO"
 
 
