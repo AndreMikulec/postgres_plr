@@ -91,6 +91,8 @@ environment:
   # save the medium file(s) and big file(s)
   APPVEYOR_SAVE_CACHE_ON_ERROR: true
   # used in the Provider release name
+  # HARDCODED - goes into the Github Provider release name
+  # Upon a new(or roll-off old) incarnation of postgres, then please CHANGE this
   PG_MANY_RELEASES: 13_AND_12
   BETTERPERL32URL: https://strawberryperl.com/download/5.32.1.1/strawberry-perl-5.32.1.1-32bit-portable.zip
   BETTERPERL32: strawberry32

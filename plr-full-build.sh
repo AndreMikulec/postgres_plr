@@ -206,9 +206,9 @@ echo   PG_VERSION: ${PG_VERSION}
 echo ${PG_VERSION} > ${APPVEYOR_BUILD_FOLDER}/PG_VERSION.txt
 
 echo  ${PG_VERSION} | grep -oP '^\d+'
-export PGVERSION_SHORT=$(echo ${PG_VERSION} | grep -oP '^\d+')
+export PG_VERSION_SHORT=$(echo ${PG_VERSION} | grep -oP '^\d+')
 echo  PG_VERSION_SHORT: ${PG_VERSION_SHORT}
-echo ${PGVERSION_SHORT} > ${APPVEYOR_BUILD_FOLDER}/PG_VERSION_SHORT.txt
+echo ${PG_VERSION_SHORT} > ${APPVEYOR_BUILD_FOLDER}/PG_VERSION_SHORT.txt
 
 if [ "${PG_GIT_BRANCH}" == "master" ]
 then
