@@ -86,15 +86,16 @@ export PATH=$PATH:${APPVEYOR_BUILD_FOLDER}/${BETTERPERL}/c/bin
 which pexports
 
 
-if [ "${PGINSTALL} == "MINGW_PREFIX_DEFAULT" }
+if [ "${PGINSTALL}" == "MINGW_PREFIX_DEFAULT" }
 then
   export PGINSTALL=${MINGW_PREFIX}
 fi
 #
 if [ ! "${PGINSTALL}" == "${MINGW_PREFIX}" ]
 then
-  # I am probably going to build from source
-  # A "build from source" is "out of" the pacman/PKGBUILD system
+  # I am probably going to do a build starting with PG from source
+  # A "build from source" is "out of" the pacman/PKGBUILD packaging system
+  #   so my PGINSTALL/bin is NOT in the PATH
   # convenience
   export PATH=${PGINSTALL}/bin:$PATH
 fi
