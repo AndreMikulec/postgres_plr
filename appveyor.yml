@@ -115,6 +115,19 @@ environment:
   matrix:
 
     - MSYSTEM: MINGW32
+      # downloaded and/or cached but not used
+      BETTERPERLURL: $(BETTERPERL32URL)
+      # downloaded and/or cached but not used
+      BETTERPERL: $(BETTERPERL32)
+      PLR_BUILD_METHOD: BIN_THEN_USE_PGXS
+      PG_GIT_BRANCH: NONE
+      BIN_THEN_USE_PGXS_URL_OLD: http://repo.msys2.org/mingw/i686/mingw-w64-i686-postgresql-12.4-1-any.pkg.tar.zst
+      PG_BUILD_CONFIG: Release
+      PLR_BUILD_CONFIG: Release
+      R_ARCH: /i386
+      COMPONENTS_ARCH: ',i386'
+
+    - MSYSTEM: MINGW32
       # MINGW_INSTALLS_TODO: mingw32
       BETTERPERLURL: $(BETTERPERL32URL)
       BETTERPERL: $(BETTERPERL32)
@@ -152,18 +165,7 @@ environment:
       COMPONENTS_ARCH: ',x64'
 
 
-    - MSYSTEM: MINGW32
-      # downloaded and/or cached but not used
-      BETTERPERLURL: $(BETTERPERL32URL)
-      # downloaded and/or cached but not used
-      BETTERPERL: $(BETTERPERL32)
-      PLR_BUILD_METHOD: BIN_THEN_USE_PGXS
-      PG_GIT_BRANCH: NONE
-      BIN_THEN_USE_PGXS_URL_OLD: http://repo.msys2.org/mingw/i686/mingw-w64-i686-postgresql-12.4-1-any.pkg.tar.zst
-      PG_BUILD_CONFIG: Release
-      PLR_BUILD_CONFIG: Release
-      R_ARCH: /i386
-      COMPONENTS_ARCH: ',i386'
+
 
 
     - MSYSTEM: MINGW32
@@ -230,8 +232,6 @@ environment:
       R_ARCH: /x64
       COMPONENTS_ARCH: ',x64'
 
-
-
     - MSYSTEM: MINGW32
       # MINGW_INSTALLS_TODO: mingw32
       BETTERPERLURL: $(BETTERPERL32URL)
@@ -251,11 +251,9 @@ matrix:
     - MSYSTEM: MINGW64
       BIN_THEN_USE_PGXS_URL_OLD: http://repo.msys2.org/mingw/x86_64/mingw-w64-x86_64-postgresql-12.4-1-any.pkg.tar.zst
 
-
 # Accessing Windows build worker via Remote Desktop
 # JAN 2021
 # https://www.appveyor.com/docs/how-to/rdp-to-build-worker/
-
 
 
 # collect IP and username for a Microsoft Remote Desktop Connection (rdc)
@@ -502,7 +500,7 @@ install:
   #
   # Andre experienced a VERY GOOD download speed: 3.7 MBytes/second
   #
-  # actually perform the download
+  # if the file exists at the remote location, then actually perform the download
   - if "%PLR_BUILD_METHOD%" == "SRC_THEN_PG_COMPILE" if "%GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_ERROR%" == "false" if not exist %GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_FILE% curl -o %GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_FILE% --fail -L %GITHUB_RELEASE_ZZGITHUBBUILDCACHE_PG_CURL_REMOTE_URL% || time /t
 
   # Appveyor cache items
@@ -537,7 +535,7 @@ install:
   #
   # Appveyor cache item
   #
-  - if not exist %BETTERPERL%.zip curl %BETTERPERLURL% -o %BETTERPERL%.zip
+  - if not exist %BETTERPERL%.zip curl -o %BETTERPERL%.zip %BETTERPERLURL%
   #
   - 7z x %BETTERPERL%.zip -o%APPVEYOR_BUILD_FOLDER%\%BETTERPERL%
 
@@ -548,6 +546,7 @@ install:
   # done LATER in PKGBUILD
 
   # later for ease of administration
+  #
   - if "%PLR_BUILD_METHOD%" == "BIN_THEN_USE_PGXS"   set PGINSTALL=%MINGW_PREFIX%
   - if "%PLR_BUILD_METHOD%" == "SRC_THEN_PG_COMPILE" set PGINSTALL=/PGINSTALL
 
@@ -558,21 +557,23 @@ install:
 build_script:
   - echo BEGIN APPVEYOR BUILD SCRIPT
   #
-  - bash --login -c "$(cygpath ${APPVEYOR_BUILD_FOLDER})/plr-full-build.sh"
+  - bash --login -c '$(cygpath ${APPVEYOR_BUILD_FOLDER})/plr-full-build.sh'
   #
   - for /f "delims=" %%i in (PG_VERSION.txt) do (set PG_VERSION=%%i)
   # regular expression does not detect characters
   - if "%PG_GIT_BRANCH%" == "master" set PG_VERSION="master"
   - type  PG_VERSION.txt
   - echo %PG_VERSION%
-  - echo END   APPVEYOR BUILD SCRIPT
   #
+  # if embedded single quote, then on the outside use a "double quote"
   - bash --login -c "cat $(cygpath ${APPVEYOR_BUILD_FOLDER})/PG_VERSION.txt | grep -oP '^\d+' > $(cygpath ${APPVEYOR_BUILD_FOLDER})/PG_VERSION_SHORT.txt"
   - for /f "delims=" %%i in (PG_VERSION_SHORT.txt) do (set PG_VERSION_SHORT=%%i)
   # regular expression does not detect characters
   - if "%PG_GIT_BRANCH%" == "master" set PG_VERSION_SHORT="master
   - type  PG_VERSION_SHORT.txt
   - echo %PG_VERSION_SHORT%
+  #
+  - echo END   APPVEYOR BUILD SCRIPT
 
 artifacts:
   #
@@ -649,7 +650,8 @@ cache:
 
   #
   # note, in that branch(or tag), this is not the "latest", but this is "good enough"
-  #   2 MB not compressed + 200 MB not compressed (and 48 MB at sourceforge: compressed?)
+  # 2 MB(config) not compressed + 200 MB(build) not compressed (and 48 MB compressed)
+  #
   - 'PG_%PG_GIT_BRANCH%.%MSYSTEM%.configure.build.%PG_BUILD_CONFIG%.tar.gz'
 
 

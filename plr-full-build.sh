@@ -8,14 +8,8 @@ loginfo "BEGIN file plr-full-build.sh"
 
 
 
-cd "$(dirname "$0")"
-
-
-
 # mypaint/windows/msys2-build.sh
 # https://github.com/mypaint/mypaint/blob/4141a6414b77dcf3e3e62961f99b91d466c6fb52/windows/msys2-build.sh
-#
-# also functions: loginfo() logok() logerror()
 #
 # ANSI control codes
 RED='\033[0;31m'
@@ -49,29 +43,6 @@ logerr() {
 
 
 
-### # needed by the package to build postgres
-### pacman -S --noconfirm --needed mingw-w64-{i686,x86_64}-gcc
-### pacman -S --noconfirm --needed msys/{flex,bison,make,perl}
-
-### # needed to save cache and artifacts
-### pacman -S --noconfirm --needed msys/tar
-
-### loginfo "BEGIN makepkg-mingw"
-### #
-### # ANDRE --nocheck
-### #
-### # Users who do not need it . . . call makepkg with --nocheck flag
-### # https://wiki.archlinux.org/index.php/Creating_packages#check()
-### #
-### # Build package
-### #
-### set -o pipefail
-### MINGW_INSTALLS="${MINGW_INSTALLS_TODO}" makepkg-mingw --nocheck 2>&1 | tee PKGBUILD.log
-### #
-### loginfo "END   makepkg-mingw"
-
-
-
 export PGSOURCE=$(cygpath "${PGSOURCE}")
 export PLRSOURCE=$(cygpath "${PLRSOURCE}")
 export PGINSTALL=$(cygpath "${PGINSTALL}")
@@ -80,10 +51,16 @@ export ZIPTMP=$(cygpath "${ZIPTMP}")
 
 
 
-# hopefully should not matter, but I feel more comfortable
 # I had an error in tarring? - so MATTERS?
 export APPVEYOR_BUILD_FOLDER=$(cygpath "${APPVEYOR_BUILD_FOLDER}")
 
+
+
+# I am here.  I want to stay here.
+echo ${APPVEYOR_BUILD_FOLDER}
+pwd
+cd "$(dirname "$0")"
+pwd
 
 
 
@@ -97,26 +74,24 @@ export APPVEYOR_BUILD_FOLDER=$(cygpath "${APPVEYOR_BUILD_FOLDER}")
 #
 export PATH=${APPVEYOR_BUILD_FOLDER}/${BETTERPERL}/perl/bin:$PATH
 
+which perl
+
 # also, so I need "pexports", that is needed when,
 # I try to use "postresql source code from git" to build postgres
 # ("pexports" is not needed when I use the "downloadable postgrsql" source code)
 #
 export PATH=$PATH:${APPVEYOR_BUILD_FOLDER}/${BETTERPERL}/c/bin
 
-
+which pexports
 
 if [ ! "${PGINSTALL}" == "{MINGW_PREFIX}" ]
 then
+  # I am probably going to build from source
+  # A "build from source" is "out of" the pacman/PKGBUILD system
   # convenience
   export PATH=${PGINSTALL}/bin:$PATH
 fi
 
-
-
-
-
-which perl
-which pexports
 
 
 
@@ -127,10 +102,8 @@ export
 # 18 Tar Command Examples in Linux
 # 2020
 # https://www.tecmint.com/18-tar-command-examples-in-linux/
-
-
-
-
+#
+#
 if [ "${PLR_BUILD_METHOD}" == "SRC_THEN_PG_COMPILE" ]
 then
   loginfo "BEGIN PKGBUILD package POSTGRESQL CONFIGURE + BUILD"
@@ -165,7 +138,7 @@ then
     ls -alrt ${PGSOURCE}
     loginfo "END   tar EXTRACTION"
   fi
-  cd -
+  cd ${APPVEYOR_BUILD_FOLDER}
   loginfo "END   PKGBUILD package POSTGRESQL CONFIGURE + BUILD"
   #
   # I need to install postgress, to get the version or test
@@ -174,7 +147,7 @@ then
   loginfo "BEGIN POSTGRESQL INSTALL"
   make install
   loginfo "END   POSTGRESQL INSTALL"
-  cd -
+  cd ${APPVEYOR_BUILD_FOLDER}
 fi
 
 
@@ -190,8 +163,9 @@ else
 fi
 
 
-
-
+#
+# just some info
+#
 if [ "${PLR_BUILD_METHOD}" == "SRC_THEN_PG_COMPILE" ]
 then
   loginfo "BEGIN PKGBUILD package 'build' to 'source' links follow"
@@ -211,8 +185,9 @@ fi
 
 
 
-# postgresql configuration
-# postgres version and save it
+#
+# show the postgresql configuration
+# show the postgres version and save it (eventually) into the calling environment
 #
 loginfo "BEGIN POSTGRESQL ACQUIRE INFO"
 pg_config
@@ -221,7 +196,9 @@ postgres -V | grep -oP '(?<=\) ).*$' > ${APPVEYOR_BUILD_FOLDER}/PG_VERSION.txt
 loginfo "END   POSTGRESQL ACQUIRE INFO"
 
 
-
+#
+# In the compile, the plr files need to be placed into contrib/plr
+#
 if [ "${PLR_BUILD_METHOD}" == "SRC_THEN_PG_COMPILE" ]
 then
   loginfo "BEGIN copy plr files to contrib"
@@ -243,7 +220,7 @@ fi
 
 
 #
-# Attempt to make a debuggable plr
+# if necessary, attempt to make a debuggable plr
 #
 if [ "${PLR_BUILD_METHOD}" == "SRC_THEN_PG_COMPILE" ]
 then
@@ -264,28 +241,31 @@ cat                                   Makefile
 #
 if [ "${PLR_BUILD_METHOD}" == "SRC_THEN_PG_COMPILE" ]
 then
-  cd -
+  cd ${APPVEYOR_BUILD_FOLDER}
 fi
 if [ "${PLR_BUILD_METHOD}" == "BIN_THEN_USE_PGXS" ]
 then
-  cd -
+  cd ${APPVEYOR_BUILD_FOLDER}
 fi
 
 
+#
+# required to do the regression tests, are a (started) cluser (and its database)
+#
 
 # cluster, database(creation), and session default
 export TZ=UTC
 
 # cluster
 #
-# in the users home directory
+# e.g., in the users home directory
 export PGAPPDIR="$HOME"${PGINSTALL}/postgresql/Data
 
 export     PGDATA=${PGAPPDIR}
 export      PGLOG=${PGAPPDIR}/log.txt
-export PGLOCALDIR=${PGINSTALL}/share/postgresql/
+export PGLOCALDIR=${PGINSTALL}/share${DIRPOSTGRESQL}/
 
-# database params
+# database params (default)
 export PGDATABASE=postgres
 export PGPORT=5432
 export PGUSER=postgres
@@ -317,7 +297,7 @@ cd ${PGSOURCE}/contrib/plr
   ###### make installcheck PGUSER=postgres || (cat regression.diffs && false)
   ###### [ ! $? -eq 0 ] && pg_ctl stop -D "${PGDATA}" && exit 1
   make clean
-  cd -
+  cd ${APPVEYOR_BUILD_FOLDER}
 fi
 if [ "${PLR_BUILD_METHOD}" == "BIN_THEN_USE_PGXS" ]
 then
@@ -327,16 +307,13 @@ then
   ###### USE_PGXS=1 make installcheck PGUSER=postgres || (cat regression.diffs && false)
   ###### [ ! $? -eq 0 ] && pg_ctl stop -D "${PGDATA}" && exit 1
   USE_PGXS=1 make clean
-  cd -
+  cd ${APPVEYOR_BUILD_FOLDER}
 fi
 #
 export R_HOME=${R_HOME_ORIG}
-export R_HOME=${R_HOME_ORIG}
 export PATH=$PATH_ORIG
 loginfo "END  OLD R PLR BUILD AND INSTALL"
-
-
-
+#
 ls -alrt ${PGINSTALL}/lib${DIRPOSTGRESQL}/plr*.*
 ls -alrt ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.*
 
@@ -349,9 +326,9 @@ loginfo "BEGIN SAVE OLD PLR"
 mkdir -p                                                     ${ZIPTMP}
 cp       ${PLRSOURCE}/LICENSE                                ${ZIPTMP}/PLR_LICENSE
 mkdir -p                                                     ${ZIPTMP}/lib
-cp -r    ${PGINSTALL}/lib${DIRPOSTGRESQL}/plr*.*             ${ZIPTMP}/lib
+cp       ${PGINSTALL}/lib${DIRPOSTGRESQL}/plr*.*             ${ZIPTMP}/lib
 mkdir -p                                                     ${ZIPTMP}/share
-cp -r    ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.* ${ZIPTMP}/share
+cp       ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.* ${ZIPTMP}/share
 #
 export ZIP=PLR_${MSYSTEM}_${PLR_TAG_SHORT}_${PLR_GIT_COMMIT}_${PLR_BUILD_CONFIG}_USING_PG_${PG_VERSION_SHORT}_${PLR_BUILD_METHOD}_${PG_BUILD_CONFIG}_LINKED_TO_R_${R_OLD_VERSION_SHORT}_CI_BUILD_VERSION_${APPVEYOR_BUILD_VERSION}_${FANCY_BUILD_DAY}.tar.gz
 echo ${ZIP}
@@ -359,7 +336,7 @@ cd ${ZIPTMP}
 loginfo "BEGIN tar CREATION"
 tar -zcvf ${APPVEYOR_BUILD_FOLDER}/${ZIP} *
 loginfo "END   tar CREATION"
-cd -
+cd ${APPVEYOR_BUILD_FOLDER}
 #
 # clean up
 #
@@ -394,7 +371,7 @@ cd ${PGSOURCE}/contrib/plr
   ###### make installcheck PGUSER=postgres || (cat regression.diffs && false)
   ###### [ ! $? -eq 0 ] && pg_ctl stop -D "${PGDATA}" && exit 1
   make clean
-  cd -
+  cd ${APPVEYOR_BUILD_FOLDER}
 fi
 if [ "${PLR_BUILD_METHOD}" == "BIN_THEN_USE_PGXS" ]
 then
@@ -404,16 +381,13 @@ then
   ###### USE_PGXS=1 make installcheck PGUSER=postgres || (cat regression.diffs && false)
   ###### [ ! $? -eq 0 ] && pg_ctl stop -D "${PGDATA}" && exit 1
   USE_PGXS=1 make clean
-  cd -
+  cd ${APPVEYOR_BUILD_FOLDER}
 fi
 #
 export R_HOME=${R_HOME_ORIG}
-export R_HOME=${R_HOME_ORIG}
 export PATH=$PATH_ORIG
 loginfo "END  CUR R PLR BUILD AND INSTALL"
-
-
-
+#
 ls -alrt ${PGINSTALL}/lib${DIRPOSTGRESQL}/plr*.*
 ls -alrt ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.*
 
@@ -426,9 +400,9 @@ loginfo "BEGIN SAVE CUR PLR"
 mkdir -p                                                     ${ZIPTMP}
 cp       ${PLRSOURCE}/LICENSE                                ${ZIPTMP}/PLR_LICENSE
 mkdir -p                                                     ${ZIPTMP}/lib
-cp -r    ${PGINSTALL}/lib${DIRPOSTGRESQL}/plr*.*             ${ZIPTMP}/lib
+cp       ${PGINSTALL}/lib${DIRPOSTGRESQL}/plr*.*             ${ZIPTMP}/lib
 mkdir -p                                                     ${ZIPTMP}/share
-cp -r    ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.* ${ZIPTMP}/share
+cp       ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.* ${ZIPTMP}/share
 #
 export ZIP=PLR_${MSYSTEM}_${PLR_TAG_SHORT}_${PLR_GIT_COMMIT}_${PLR_BUILD_CONFIG}_USING_PG_${PG_VERSION_SHORT}_${PLR_BUILD_METHOD}_${PG_BUILD_CONFIG}_LINKED_TO_R_${R_CUR_VERSION_SHORT}_CI_BUILD_VERSION_${APPVEYOR_BUILD_VERSION}_${FANCY_BUILD_DAY}.tar.gz
 echo ${ZIP}
@@ -436,7 +410,7 @@ cd ${ZIPTMP}
 loginfo "BEGIN tar CREATION"
 tar -zcvf ${APPVEYOR_BUILD_FOLDER}/${ZIP} *
 loginfo "END   tar CREATION"
-cd -
+cd ${APPVEYOR_BUILD_FOLDER}
 #
 # clean up
 #
@@ -447,6 +421,7 @@ rm    ${PGINSTALL}/share${DIRPOSTGRESQL}/extension/plr*.*
 loginfo "END   SAVE CUR PLR"
 pwd
 ls -alrt ${APPVEYOR_BUILD_FOLDER}/${ZIP}
+
 
 
 
