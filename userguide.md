@@ -1601,7 +1601,7 @@ SELECT * FROM tbl;
 (2 rows)
 ```
 
-## DO Inline Handler <a name='do-inline-handler'></a>
+## Inline Handler <a name='inline-handler'></a>
 
 In plr version 8.4, is the `DO` inline handler.
 The DO inline handler allows the execution of an anonymous plr code block.
