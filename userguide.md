@@ -245,14 +245,14 @@ then (eventually) you may get this error:
 ```postgresql
 postgres=# CREATE EXTENSION plr;
 CREATE EXTENSION
-postgres=# select r_version();
+postgres=# SELECT r_version();
 ERROR:  environment variable R_HOME not defined
 HINT:  R_HOME must be defined in the environment of the user that starts the postmaster process.
 ```
 
 
 Third, put the R.dll in your PATH. This is required, so do the following:
-Control Panel -> System -> advanced system settings -> Environment Variables button
+Control Panel -> System -> Advanced System Settings -> Environment Variables button
 In the "System variables" area, choose the System Variable, called "Path".
 Click on the Edit button.
 Add the R.dll folder to the "Path".
@@ -1211,7 +1211,7 @@ Provides the 1-based, row offset of the current row, in the current `PARTITION`.
 A more complete example follows:
 
 ```postgresql
--- create test table
+-- CREATE test TABLE
 CREATE TABLE test_data (
   fyear integer,
   firm float8,
