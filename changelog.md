@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [Support R sub-architectures - February 08, 2021 - git hash - 8250e991561cba29303676d0716cea1dacadaa86]
+### Added
+- Ability to compile plr in the case, that linking occures to an R, that exists in a sub-architecture.
+
 ## [8.4.0.1]
 ### Added
 - Accept composite argument type. [@ikasou](https://github.com/ikasou)
